@@ -44,3 +44,7 @@ __screenshots__/
 Thumbs.db
 
 referencia/
+
+# Archivos de trabajo locales
+CLAUDE.md
+docs/prompt-*.md
