@@ -1,0 +1,156 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Pensiones</p>
+      <h2>{{ esRenovacion() ? 'Renovar contrato' : 'Nuevo contrato' }}</h2>
+    </div>
+    <a [routerLink]="esRenovacion() ? ['/contratos', id()] : '/contratos'" class="btn">Cancelar</a>
+  </header>
+
+  <app-aviso-caja />
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (anterior(); as a) {
+    <div class="alerta aviso">
+      Renovación de <strong>{{ a.numero }}</strong> (vence el {{ a.fechaFin | date }}).
+      El nuevo contrato empieza el {{ fechaInicio() | date }} y no traslada raciones.
+      @if (!renovable()) {
+        <br /><strong>Este contrato no se puede renovar:</strong> debe estar ACTIVO y faltar 3 días o menos para su fin.
+      }
+    </div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="registrar()" class="secciones">
+    <!-- 1. Cliente -->
+    <section class="card seccion">
+      <h3><span class="paso">1</span> Cliente</h3>
+      @if (cliente(); as c) {
+        <div class="cliente">
+          <div>
+            <strong>{{ c.nombre }} {{ c.apellido }}</strong>
+            <small>DNI {{ c.dni }}{{ c.telefono ? ' · ' + c.telefono : '' }}</small>
+          </div>
+          @if (!c.activo) {
+            <span class="badge inactivo">Inactivo</span>
+          }
+          @if (!esRenovacion()) {
+            <button type="button" class="btn" (click)="cambiarCliente()">Cambiar</button>
+          }
+        </div>
+        @if (!c.activo) {
+          <small class="error">El cliente está inactivo; actívelo antes de registrar un contrato.</small>
+        }
+      } @else if (!esRenovacion()) {
+        <div class="buscar">
+          <label>
+            DNI del cliente
+            <input class="input" inputmode="numeric" maxlength="8" formControlName="dni" (keydown.enter)="$event.preventDefault(); buscarCliente()" />
+          </label>
+          <button type="button" class="btn btn-primary" [disabled]="buscandoCliente()" (click)="buscarCliente()">
+            {{ buscandoCliente() ? 'Buscando...' : 'Buscar' }}
+          </button>
+        </div>
+        @if (form.controls.dni.touched && form.controls.dni.invalid) {
+          <small class="error">El DNI debe tener exactamente 8 dígitos.</small>
+        }
+        @if (dniNoEncontrado(); as dni) {
+          <div class="alerta aviso no-encontrado">
+            No existe un cliente con DNI {{ dni }}.
+            <a class="btn btn-acento" routerLink="/clientes/nuevo" [queryParams]="{ dni, retorno: 'contrato' }">Crear cliente</a>
+          </div>
+        }
+      }
+    </section>
+
+    <!-- 2. Plan, fecha y servicios -->
+    <section class="card seccion">
+      <h3><span class="paso">2</span> Plan y servicios</h3>
+      <div class="plan">
+        <label>
+          Plan
+          <select class="input" formControlName="planId">
+            <option [ngValue]="null" disabled>Seleccione un plan</option>
+            @for (p of planes(); track p.id) {
+              <option [ngValue]="p.id">{{ p.nombre }} ({{ p.periodo === 'SEMANAL' ? 'Semanal' : 'Mensual' }})</option>
+            }
+          </select>
+        </label>
+        <label>
+          Fecha de inicio
+          @if (esRenovacion()) {
+            <input class="input" [value]="fechaInicio() | date" disabled />
+          } @else {
+            <input type="date" class="input" [min]="hoy" formControlName="fechaInicio" />
+          }
+        </label>
+      </div>
+      @if (!esRenovacion() && fechaInicio() && fechaInicio() < hoy) {
+        <small class="error">La fecha de inicio no puede ser anterior a hoy.</small>
+      }
+
+      @if (plan(); as p) {
+        <div class="servicios">
+          @for (s of p.servicios; track s) {
+            <label class="servicio" [class.marcado]="servicios().includes(s)">
+              <input type="checkbox" [checked]="servicios().includes(s)" (change)="alternarServicio(s, $any($event.target).checked)" />
+              {{ catalogos.nombreServicio(s) }}
+            </label>
+          }
+        </div>
+        @if (servicios().length === 0) {
+          <small class="error">Elija al menos un servicio.</small>
+        }
+      }
+    </section>
+
+    <!-- 3. Simulación -->
+    <section class="card seccion">
+      <h3><span class="paso">3</span> Simulación</h3>
+      @if (simulando()) {
+        <p class="nota">Calculando raciones y precio...</p>
+      } @else if (errorSimulacion()) {
+        <div class="alerta">{{ errorSimulacion() }}</div>
+      } @else if (simulacion(); as s) {
+        <p>Del <strong>{{ s.fechaInicio | date }}</strong> al <strong>{{ s.fechaFin | date }}</strong></p>
+        <table class="tabla">
+          <thead><tr><th>Servicio</th><th class="num">Raciones</th><th class="num">Precio</th><th class="num">Subtotal</th></tr></thead>
+          <tbody>
+            @for (r of s.servicios; track r.servicio) {
+              <tr>
+                <td>{{ catalogos.nombreServicio(r.servicio) }}</td>
+                <td class="num">{{ r.raciones }}</td>
+                <td class="num">{{ r.precioRacion | currency }}</td>
+                <td class="num">{{ r.subtotal | currency }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot><tr><th colspan="3">Total</th><th class="num">{{ s.total | currency }}</th></tr></tfoot>
+        </table>
+      } @else {
+        <p class="nota">Elija cliente, plan, fecha y servicios para ver el cálculo.</p>
+      }
+    </section>
+
+    <!-- 4. Pagos -->
+    <section class="card seccion">
+      <h3><span class="paso">4</span> Pagos</h3>
+      @if (simulacion()) {
+        <app-selector-pagos [total]="total()" [deshabilitado]="guardando()" (cambio)="pagos.set($event)" />
+        @if (erroresServidor()['pagos']; as mensaje) {
+          <small class="error">{{ mensaje }}</small>
+        }
+      } @else {
+        <p class="nota">Los pagos se habilitan cuando la simulación está lista.</p>
+      }
+    </section>
+
+    <div class="acciones">
+      <button type="submit" class="btn btn-primary registrar" [disabled]="!puedeRegistrar()">
+        {{ guardando() ? 'Guardando...' : (esRenovacion() ? 'Registrar renovación' : 'Registrar contrato') }}
+      </button>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,13 @@
+.aviso-caja {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border: 1px solid #ecd9a6;
+  border-radius: 8px;
+  color: var(--color-aviso);
+  background: var(--color-aviso-suave);
+}

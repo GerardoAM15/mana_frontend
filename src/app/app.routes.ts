@@ -42,6 +42,18 @@ export const routes: Routes = [
         loadChildren: () => import('./features/caja/caja.routes').then(m => m.CAJA_ROUTES),
       },
       {
+        path: 'clientes',
+        canActivate: [permisoGuard],
+        data: { permiso: 'CLIENTE_LEER' },
+        loadChildren: () => import('./features/clientes/clientes.routes').then(m => m.CLIENTES_ROUTES),
+      },
+      {
+        path: 'contratos',
+        canActivate: [permisoGuard],
+        data: { permiso: 'CONTRATO_LEER' },
+        loadChildren: () => import('./features/contratos/contratos.routes').then(m => m.CONTRATOS_ROUTES),
+      },
+      {
         path: 'acceso-denegado',
         title: 'Acceso denegado',
         loadComponent: () => import('./shared/pages/acceso-denegado/acceso-denegado').then(m => m.AccesoDenegado),

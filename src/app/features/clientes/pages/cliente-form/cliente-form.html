@@ -1,0 +1,70 @@
+<section class="page">
+  <p class="eyebrow">Clientes</p>
+  <h2>{{ esEdicion() ? 'Editar cliente' : 'Nuevo cliente' }}</h2>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
+    <label>
+      DNI
+      <input class="input" inputmode="numeric" maxlength="8" formControlName="dni" />
+    </label>
+    @if (form.controls.dni.touched && form.controls.dni.invalid) {
+      <small class="error">El DNI debe tener exactamente 8 dígitos.</small>
+    }
+    @if (erroresServidor()['dni']; as mensaje) {
+      <small class="error">{{ mensaje }}</small>
+    }
+
+    <div class="dos-columnas">
+      <div class="campo">
+        <label>
+          Nombre
+          <input class="input" maxlength="100" formControlName="nombre" />
+        </label>
+        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+          <small class="error">El nombre es obligatorio (máximo 100 caracteres).</small>
+        }
+        @if (erroresServidor()['nombre']; as mensaje) {
+          <small class="error">{{ mensaje }}</small>
+        }
+      </div>
+      <div class="campo">
+        <label>
+          Apellido
+          <input class="input" maxlength="100" formControlName="apellido" />
+        </label>
+        @if (form.controls.apellido.touched && form.controls.apellido.invalid) {
+          <small class="error">El apellido es obligatorio (máximo 100 caracteres).</small>
+        }
+        @if (erroresServidor()['apellido']; as mensaje) {
+          <small class="error">{{ mensaje }}</small>
+        }
+      </div>
+    </div>
+
+    <label>
+      Teléfono (opcional)
+      <input class="input" inputmode="tel" maxlength="20" formControlName="telefono" />
+    </label>
+    @if (form.controls.telefono.touched && form.controls.telefono.invalid) {
+      <small class="error">Máximo 20 caracteres.</small>
+    }
+    @if (erroresServidor()['telefono']; as mensaje) {
+      <small class="error">{{ mensaje }}</small>
+    }
+
+    <label class="check">
+      <input type="checkbox" formControlName="activo" /> Activo
+    </label>
+
+    <div class="acciones">
+      <a [routerLink]="retorno() === 'contrato' ? '/contratos/nuevo' : '/clientes'" class="btn">Cancelar</a>
+      <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : (esEdicion() ? 'Actualizar' : 'Registrar') }}
+      </button>
+    </div>
+  </form>
+</section>
