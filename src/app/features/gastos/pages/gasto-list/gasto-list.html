@@ -1,0 +1,63 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Administración</p>
+      <h2>Gastos diarios</h2>
+    </div>
+    <a routerLink="nuevo" class="btn btn-primary">+ Nuevo gasto</a>
+  </header>
+
+  <form [formGroup]="filtros" (ngSubmit)="buscar(0)" class="card filtros">
+    <label>Desde <input type="date" class="input" formControlName="desde" /></label>
+    <label>Hasta <input type="date" class="input" formControlName="hasta" /></label>
+    <button type="submit" class="btn btn-primary" [disabled]="cargando()">Buscar</button>
+    <div class="total">
+      <span>Total del periodo</span>
+      <strong>{{ totalPeriodo() !== null ? (totalPeriodo()! | currency) : '…' }}</strong>
+    </div>
+  </form>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando() && !resultado()) {
+    <p>Cargando gastos...</p>
+  } @else if (resultado(); as r) {
+    <table class="tabla">
+      <thead><tr><th>Fecha</th><th>Descripción</th><th class="num">Monto</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        @for (g of r.contenido; track g.id) {
+          <tr [class.inactivo]="!g.activo">
+            <td>{{ g.fecha | date }}</td>
+            <td>{{ g.descripcion }}</td>
+            <td class="num">{{ g.monto | currency }}</td>
+            <td><span class="badge" [class.inactivo]="!g.activo">{{ g.activo ? 'Activo' : 'Desactivado' }}</span></td>
+            <td class="acciones">
+              <a [routerLink]="[g.id, 'editar']" class="btn">Editar</a>
+              @if (g.activo) {
+                <button type="button" class="btn btn-peligro" (click)="porDesactivar.set(g)">Desactivar</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="5" class="vacio">No hay registros.</td></tr>
+        }
+      </tbody>
+    </table>
+    <app-paginador [pagina]="r" [deshabilitado]="cargando()" (cambiar)="buscar($event)" />
+  }
+</section>
+
+@if (porDesactivar(); as g) {
+  <app-confirmar-dialogo
+    titulo="¿Desactivar este gasto?"
+    [mensaje]="(g.monto | currency) + ' · ' + g.descripcion + '. Dejará de sumar en el total y en los reportes.'"
+    textoConfirmar="Sí, desactivar"
+    textoProcesando="Desactivando..."
+    [peligro]="true"
+    [procesando]="desactivando()"
+    (confirmar)="confirmarDesactivar()"
+    (cancelar)="porDesactivar.set(null)"
+  />
+}

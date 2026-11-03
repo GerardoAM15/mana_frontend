@@ -90,6 +90,18 @@ export const routes: Routes = [
         loadChildren: () => import('./features/calendario/calendario.routes').then(m => m.CALENDARIO_ROUTES),
       },
       {
+        path: 'inventario',
+        canActivate: [permisoGuard],
+        data: { permiso: 'INVENTARIO_GESTIONAR' },
+        loadChildren: () => import('./features/inventario/inventario.routes').then(m => m.INVENTARIO_ROUTES),
+      },
+      {
+        path: 'gastos',
+        canActivate: [permisoGuard],
+        data: { permiso: 'GASTO_GESTIONAR' },
+        loadChildren: () => import('./features/gastos/gastos.routes').then(m => m.GASTOS_ROUTES),
+      },
+      {
         path: 'acceso-denegado',
         title: 'Acceso denegado',
         loadComponent: () => import('./shared/pages/acceso-denegado/acceso-denegado').then(m => m.AccesoDenegado),

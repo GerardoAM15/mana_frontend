@@ -1,0 +1,52 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Inventario</p>
+      <h2>Bebidas</h2>
+    </div>
+    <a routerLink="/inventario/bebidas/nueva" class="btn btn-primary">+ Nueva bebida</a>
+  </header>
+  <app-inventario-tabs />
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <p>Cargando bebidas...</p>
+  } @else {
+    <table class="tabla">
+      <thead><tr><th>Nombre</th><th class="num">Precio de venta</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        @for (b of bebidas(); track b.id) {
+          <tr>
+            <td>{{ b.nombre }}</td>
+            <td class="num">{{ b.precioVenta | currency }}</td>
+            <td><span class="badge" [class.inactivo]="!b.activo">{{ b.activo ? 'Activa' : 'Inactiva' }}</span></td>
+            <td class="acciones">
+              <a [routerLink]="['/inventario/bebidas', b.id, 'editar']" class="btn">Editar</a>
+              @if (b.activo) {
+                <button type="button" class="btn btn-peligro" (click)="porEliminar.set(b)">Eliminar</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4" class="vacio">No hay registros.</td></tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
+
+@if (porEliminar(); as b) {
+  <app-confirmar-dialogo
+    titulo="¿Eliminar esta bebida?"
+    [mensaje]="b.nombre + ' dejará de venderse en el punto de venta. Si ya tiene compras o ventas, el sistema solo la desactiva.'"
+    textoConfirmar="Sí, eliminar"
+    textoProcesando="Eliminando..."
+    [peligro]="true"
+    [procesando]="eliminando()"
+    (confirmar)="confirmarEliminar()"
+    (cancelar)="porEliminar.set(null)"
+  />
+}

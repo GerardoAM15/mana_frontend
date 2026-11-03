@@ -1,0 +1,36 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Inventario · {{ localNombre }}</p>
+      <h2>Stock de bebidas</h2>
+    </div>
+    <a routerLink="/inventario/compras/nueva" class="btn btn-primary">+ Nueva compra</a>
+  </header>
+  <app-inventario-tabs />
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <p>Cargando stock...</p>
+  } @else {
+    <table class="tabla">
+      <thead><tr><th>Bebida</th><th class="num">Unidades</th><th></th></tr></thead>
+      <tbody>
+        @for (s of stock(); track s.id) {
+          <tr>
+            <td>{{ s.bebidaNombre }}</td>
+            <td class="num" [class.bajo]="s.stock <= bajo">{{ s.stock }}{{ s.stock === 0 ? ' · sin stock' : (s.stock <= bajo ? ' · bajo' : '') }}</td>
+            <td><a routerLink="/inventario/kardex" [queryParams]="{ bebidaId: s.bebidaId }" class="btn">Ver kardex</a></td>
+          </tr>
+        } @empty {
+          <tr><td colspan="3" class="vacio">No hay registros. El stock aparece al registrar la primera compra.</td></tr>
+        }
+      </tbody>
+      @if (stock().length) {
+        <tfoot><tr><th>Total</th><th class="num">{{ totalUnidades() }}</th><th></th></tr></tfoot>
+      }
+    </table>
+  }
+</section>

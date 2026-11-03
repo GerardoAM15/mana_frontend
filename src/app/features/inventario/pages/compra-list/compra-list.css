@@ -1,0 +1,4 @@
+.filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; margin-bottom: 14px; }
+label { display: flex; flex-direction: column; gap: 5px; font-size: 14px; font-weight: 700; }
+.linea { display: block; font-size: 14px; }
+.tabla tfoot th { background: var(--color-primario-oscuro); }

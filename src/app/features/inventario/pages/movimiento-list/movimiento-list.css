@@ -1,0 +1,17 @@
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 18px;
+}
+
+label { display: flex; flex-direction: column; gap: 5px; font-size: 14px; font-weight: 700; }
+.botones { display: flex; gap: 8px; }
+.tipo { padding: 3px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+.compra { color: var(--color-exito); background: var(--color-exito-suave); }
+.venta { color: var(--color-info); background: var(--color-info-suave); }
+.devolucion { color: var(--color-aviso); background: var(--color-aviso-suave); }
+.cantidad { color: var(--color-exito); font-weight: 700; }
+.cantidad.salida { color: var(--color-peligro); }

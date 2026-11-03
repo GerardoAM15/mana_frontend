@@ -1,0 +1,32 @@
+<section class="page">
+  <p class="eyebrow">Inventario · bebidas</p>
+  <h2>{{ esEdicion() ? 'Editar bebida' : 'Nueva bebida' }}</h2>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
+    <label>Nombre <input class="input" maxlength="120" placeholder="Ej.: Inca Kola 500 ml" formControlName="nombre" /></label>
+    @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+      <small class="error">El nombre es obligatorio (máximo 120 caracteres).</small>
+    }
+    @if (erroresServidor()['nombre']; as m) { <small class="error">{{ m }}</small> }
+
+    <label>Precio de venta <input type="number" min="0.01" step="0.01" class="input" formControlName="precioVenta" /></label>
+    @if (form.controls.precioVenta.touched && form.controls.precioVenta.invalid) {
+      <small class="error">Debe ser mayor a 0.</small>
+    }
+    @if (erroresServidor()['precioVenta']; as m) { <small class="error">{{ m }}</small> }
+    <small class="nota">Las bebidas se venden aparte y nunca llevan recargo para llevar.</small>
+
+    <label class="check"><input type="checkbox" formControlName="activo" /> Activa</label>
+
+    <div class="acciones">
+      <a routerLink="/inventario/bebidas" class="btn">Cancelar</a>
+      <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : (esEdicion() ? 'Actualizar' : 'Registrar') }}
+      </button>
+    </div>
+  </form>
+</section>
