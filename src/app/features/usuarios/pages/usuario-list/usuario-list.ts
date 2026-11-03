@@ -7,10 +7,8 @@ import { CatalogoService } from '../../../../core/services/catalogo-service';
 import { mensajeError } from '../../../../core/utils/http-error';
 import { coincide } from '../../../../core/utils/texto';
 import { ConfirmarDialogo } from '../../../../shared/components/confirmar-dialogo/confirmar-dialogo';
-import { Rol, Usuario } from '../../models/usuario.model';
+import { Rol, rolesAsignables, Usuario } from '../../models/usuario.model';
 import { UsuarioService } from '../../services/usuario-service';
-
-const ROLES: Rol[] = ['ADMINISTRADOR', 'DUENO', 'CAJERO'];
 
 @Component({
   selector: 'app-usuario-list',
@@ -21,10 +19,10 @@ const ROLES: Rol[] = ['ADMINISTRADOR', 'DUENO', 'CAJERO'];
 export class UsuarioList implements OnInit {
   private readonly usuarioService = inject(UsuarioService);
   protected readonly catalogos = inject(CatalogoService);
-  // No se ofrece desactivar ni cambiar el rol del propio usuario.
-  protected readonly yo = inject(AuthService).usuario()?.usuarioId ?? null;
-
-  protected readonly roles = ROLES;
+  private readonly sesion = inject(AuthService).usuario();
+  protected readonly yo = this.sesion?.usuarioId ?? null;
+  // El ADMINISTRADOR solo puede asignar CAJERO; el DUENO, cualquier rol.
+  protected readonly roles = rolesAsignables(this.sesion?.rol);
   protected readonly usuarios = signal<Usuario[]>([]);
   protected readonly texto = signal('');
   protected readonly cargando = signal(false);
@@ -58,8 +56,22 @@ export class UsuarioList implements OnInit {
     return this.usuarios().filter(u => coincide(this.texto(), u.nombre, u.apellido, u.correo, u.dni));
   }
 
+  // gestionable lo decide el backend según la jerarquía; nunca habilita cambiar el rol
+  // propio ni desactivar la propia cuenta.
+  protected puedeEditar(usuario: Usuario): boolean {
+    return usuario.gestionable;
+  }
+
+  protected puedeCambiarRol(usuario: Usuario): boolean {
+    return usuario.gestionable && usuario.id !== this.yo;
+  }
+
+  protected puedeDesactivar(usuario: Usuario): boolean {
+    return usuario.gestionable && usuario.id !== this.yo && usuario.activo;
+  }
+
   abrirCambioRol(usuario: Usuario): void {
-    this.rolNuevo.set(usuario.rol);
+    this.rolNuevo.set(this.roles.includes(usuario.rol) ? usuario.rol : this.roles[0]);
     this.cambiandoRol.set(usuario);
   }
 

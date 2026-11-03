@@ -1,15 +1,16 @@
 import { grupoDeRuta, gruposVisibles, MENU_GRUPOS } from './menu';
 
-// Permisos por rol (tabla de docs/prompt-backend-mana.md, PermisosPorRol).
-const COMUNES = ['CLIENTE_LEER', 'CONTRATO_LEER', 'CAJA_OPERAR', 'MENU_LEER'];
+// Permisos por rol según el backend: DUENO tiene todos; ADMINISTRADOR, todos menos LOCAL_GESTIONAR.
+const TODOS = [
+  'USUARIO_GESTIONAR', 'LOCAL_GESTIONAR', 'CLIENTE_LEER', 'CLIENTE_ESCRIBIR', 'CONTRATO_LEER', 'CONTRATO_REGISTRAR',
+  'CONTRATO_ANULAR', 'CONSUMO_REGISTRAR', 'CONSUMO_ANULAR', 'VENTA_REGISTRAR', 'VENTA_ANULAR', 'CAJA_OPERAR',
+  'CAJA_SUPERVISAR', 'MENU_GESTIONAR', 'MENU_LEER', 'PLAN_GESTIONAR', 'CALENDARIO_GESTIONAR', 'INVENTARIO_GESTIONAR',
+  'GASTO_GESTIONAR', 'REPORTE_VER',
+];
 const PERMISOS: Record<string, string[]> = {
-  ADMINISTRADOR: [
-    ...COMUNES, 'USUARIO_GESTIONAR', 'LOCAL_GESTIONAR', 'CLIENTE_ESCRIBIR', 'CONTRATO_REGISTRAR', 'CONTRATO_ANULAR',
-    'CONSUMO_REGISTRAR', 'CONSUMO_ANULAR', 'VENTA_REGISTRAR', 'VENTA_ANULAR', 'CAJA_SUPERVISAR', 'MENU_GESTIONAR',
-    'PLAN_GESTIONAR', 'CALENDARIO_GESTIONAR', 'INVENTARIO_GESTIONAR', 'GASTO_GESTIONAR', 'REPORTE_VER',
-  ],
-  DUENO: [...COMUNES, 'CAJA_SUPERVISAR', 'PLAN_GESTIONAR', 'CALENDARIO_GESTIONAR', 'INVENTARIO_GESTIONAR', 'GASTO_GESTIONAR', 'REPORTE_VER'],
-  CAJERO: [...COMUNES, 'CLIENTE_ESCRIBIR', 'CONSUMO_REGISTRAR', 'VENTA_REGISTRAR'],
+  DUENO: TODOS,
+  ADMINISTRADOR: TODOS.filter(p => p !== 'LOCAL_GESTIONAR'),
+  CAJERO: ['CLIENTE_LEER', 'CLIENTE_ESCRIBIR', 'CONTRATO_LEER', 'CONSUMO_REGISTRAR', 'VENTA_REGISTRAR', 'CAJA_OPERAR', 'MENU_LEER'],
 };
 
 function menuDe(rol: string): Record<string, string[]> {
@@ -20,8 +21,8 @@ function menuDe(rol: string): Record<string, string[]> {
 }
 
 describe('gruposVisibles', () => {
-  it('el administrador ve los 6 grupos con todos sus ítems', () => {
-    expect(menuDe('ADMINISTRADOR')).toEqual({
+  it('el dueño ve los 5 grupos con todos sus ítems', () => {
+    expect(menuDe('DUENO')).toEqual({
       'Atención diaria': ['Mostrador', 'Punto de venta', 'Ventas', 'Caja'],
       Pensiones: ['Clientes', 'Contratos'],
       'Cocina y precios': ['Menú', 'Planes', 'Calendario'],
@@ -30,13 +31,13 @@ describe('gruposVisibles', () => {
     });
   });
 
-  it('el dueño no ve Mostrador, POS ni Ventas; en Gestión solo Reportes', () => {
-    expect(menuDe('DUENO')).toEqual({
-      'Atención diaria': ['Caja'],
+  it('el administrador ve todo menos Locales', () => {
+    expect(menuDe('ADMINISTRADOR')).toEqual({
+      'Atención diaria': ['Mostrador', 'Punto de venta', 'Ventas', 'Caja'],
       Pensiones: ['Clientes', 'Contratos'],
       'Cocina y precios': ['Menú', 'Planes', 'Calendario'],
       'Almacén y gastos': ['Inventario', 'Gastos'],
-      Gestión: ['Reportes'],
+      Gestión: ['Reportes', 'Usuarios'],
     });
   });
 

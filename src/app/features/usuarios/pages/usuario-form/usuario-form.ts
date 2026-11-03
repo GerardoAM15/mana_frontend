@@ -2,15 +2,21 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { CatalogoService } from '../../../../core/services/catalogo-service';
 import { erroresDeValidacion, mensajeError } from '../../../../core/utils/http-error';
-import { Local } from '../../../locales/models/local.model';
 import { LocalService } from '../../../locales/services/local-service';
-import { Rol, UsuarioRequest } from '../../models/usuario.model';
+import { Rol, rolesAsignables, UsuarioRequest } from '../../models/usuario.model';
 import { UsuarioService } from '../../services/usuario-service';
+
+interface OpcionLocal {
+  id: number;
+  nombre: string;
+}
 
 // Crea persona + empleado + usuario en un solo paso. Al editar, la clave es opcional
 // y el rol se cambia con "Cambiar rol" en el listado (PATCH /usuarios/{id}/rol).
+// Jerarquía: el ADMINISTRADOR solo crea cajeros; el DUENO, cualquier rol.
 @Component({
   selector: 'app-usuario-form',
   imports: [ReactiveFormsModule, RouterLink],
@@ -23,10 +29,13 @@ export class UsuarioForm implements OnInit {
   private readonly localService = inject(LocalService);
   private readonly router = inject(Router);
   protected readonly catalogos = inject(CatalogoService);
+  private readonly auth = inject(AuthService);
 
   readonly id = input<string>();
-  protected readonly roles: Rol[] = ['ADMINISTRADOR', 'DUENO', 'CAJERO'];
-  protected readonly locales = signal<Local[]>([]);
+  protected readonly roles = signal<Rol[]>(rolesAsignables(this.auth.usuario()?.rol));
+  protected readonly locales = signal<OpcionLocal[]>([]);
+  // false si el backend indica que este usuario no se puede editar (gestionable = false).
+  protected readonly editable = signal(true);
   protected readonly guardando = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly erroresServidor = signal<Record<string, string>>({});
@@ -49,10 +58,7 @@ export class UsuarioForm implements OnInit {
 
   ngOnInit(): void {
     this.catalogos.cargar().subscribe({ error: () => undefined });
-    this.localService.listar().subscribe({
-      next: locales => this.locales.set(locales.filter(l => l.activo)),
-      error: (err: HttpErrorResponse) => this.error.set(mensajeError(err)),
-    });
+    this.cargarLocales();
 
     const id = this.id();
     if (!id) return;
@@ -60,15 +66,43 @@ export class UsuarioForm implements OnInit {
     this.form.controls.clave.setValidators([Validators.minLength(8), Validators.maxLength(72)]);
     this.form.controls.rol.disable();
     this.usuarioService.obtener(Number(id)).subscribe({
-      next: u => this.form.patchValue({
-        dni: u.dni, nombre: u.nombre, apellido: u.apellido, telefono: u.telefono ?? '', localId: u.localId,
-        cargo: u.cargo, correo: u.correo, clave: '', rol: u.rol, activo: u.activo,
-      }),
+      next: u => {
+        this.agregarLocal({ id: u.localId, nombre: u.localNombre });
+        // El rol actual se muestra aunque no esté entre los asignables.
+        if (!this.roles().includes(u.rol)) this.roles.update(r => [...r, u.rol]);
+        this.form.patchValue({
+          dni: u.dni, nombre: u.nombre, apellido: u.apellido, telefono: u.telefono ?? '', localId: u.localId,
+          cargo: u.cargo, correo: u.correo, clave: '', rol: u.rol, activo: u.activo,
+        });
+        if (!u.gestionable) {
+          this.editable.set(false);
+          this.form.disable();
+        }
+      },
       error: (err: HttpErrorResponse) => this.error.set(mensajeError(err)),
     });
   }
 
+  // GET /locales exige LOCAL_GESTIONAR (solo DUENO). Sin ese permiso se usa el local de la sesión.
+  private cargarLocales(): void {
+    const sesion = this.auth.usuario();
+    if (!this.auth.tienePermiso('LOCAL_GESTIONAR')) {
+      if (sesion) this.agregarLocal({ id: sesion.localId, nombre: sesion.localNombre });
+      if (!this.id() && sesion) this.form.controls.localId.setValue(sesion.localId);
+      return;
+    }
+    this.localService.listar().subscribe({
+      next: locales => locales.filter(l => l.activo).forEach(l => this.agregarLocal({ id: l.id, nombre: l.nombre })),
+      error: (err: HttpErrorResponse) => this.error.set(mensajeError(err)),
+    });
+  }
+
+  private agregarLocal(local: OpcionLocal): void {
+    this.locales.update(lista => (lista.some(l => l.id === local.id) ? lista : [...lista, local]));
+  }
+
   guardar(): void {
+    if (!this.editable()) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;

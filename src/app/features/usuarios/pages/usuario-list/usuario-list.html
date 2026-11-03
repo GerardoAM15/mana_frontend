@@ -32,12 +32,17 @@
             <td><span class="rol">{{ catalogos.nombreRol(u.rol) }}</span></td>
             <td><span class="badge" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Inactivo' }}</span></td>
             <td class="acciones">
-              <a [routerLink]="[u.id, 'editar']" class="btn">Editar</a>
-              @if (u.id !== yo) {
+              @if (puedeEditar(u)) {
+                <a [routerLink]="[u.id, 'editar']" class="btn">Editar</a>
+              }
+              @if (puedeCambiarRol(u)) {
                 <button type="button" class="btn" (click)="abrirCambioRol(u)">Cambiar rol</button>
-                @if (u.activo) {
-                  <button type="button" class="btn btn-peligro" (click)="porDesactivar.set(u)">Desactivar</button>
-                }
+              }
+              @if (puedeDesactivar(u)) {
+                <button type="button" class="btn btn-peligro" (click)="porDesactivar.set(u)">Desactivar</button>
+              }
+              @if (!u.gestionable) {
+                <small class="nota">Sin permiso para gestionarlo</small>
               }
             </td>
           </tr>
@@ -66,6 +71,9 @@
         @for (r of roles; track r) { <option [value]="r" [selected]="r === rolNuevo()">{{ catalogos.nombreRol(r) }}</option> }
       </select>
     </label>
+    @if (roles.length === 1) {
+      <small class="nota">Como administrador solo puede asignar el rol {{ catalogos.nombreRol(roles[0]) }}.</small>
+    }
   </app-confirmar-dialogo>
 }
 

@@ -5,6 +5,9 @@
   @if (error()) {
     <div class="alerta">{{ error() }}</div>
   }
+  @if (!editable()) {
+    <div class="alerta aviso">Según la jerarquía de roles, no puede modificar este usuario.</div>
+  }
 
   <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
     <fieldset>
@@ -59,9 +62,13 @@
         <label>
           Rol
           <select class="input" formControlName="rol">
-            @for (r of roles; track r) { <option [value]="r">{{ catalogos.nombreRol(r) }}</option> }
+            @for (r of roles(); track r) { <option [value]="r">{{ catalogos.nombreRol(r) }}</option> }
           </select>
-          @if (esEdicion()) { <small class="nota">Use "Cambiar rol" en el listado.</small> }
+          @if (esEdicion()) {
+            <small class="nota">Use "Cambiar rol" en el listado.</small>
+          } @else if (roles().length === 1) {
+            <small class="nota">Como administrador solo puede crear cajeros.</small>
+          }
         </label>
         <label class="check"><input type="checkbox" formControlName="activo" /> Activo</label>
       </div>
@@ -69,7 +76,7 @@
 
     <div class="acciones">
       <a routerLink="/usuarios" class="btn">Cancelar</a>
-      <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+      <button type="submit" class="btn btn-primary" [disabled]="guardando() || !editable()">
         {{ guardando() ? 'Guardando...' : (esEdicion() ? 'Actualizar' : 'Registrar') }}
       </button>
     </div>

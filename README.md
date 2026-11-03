@@ -60,13 +60,19 @@ Abra **http://localhost:4200/**. `npm start` ejecuta `ng serve` con `proxy.conf.
 
 > **Solo para desarrollo.** Son credenciales de la base de datos local; no las use en producción.
 
-| Rol | Correo | Contraseña | Local |
-|---|---|---|---|
-| ADMINISTRADOR | `admin@mana.pe` | `Admin12345` | Local principal |
-| DUENO | `dueno@mana.pe` | `Dueno12345` | Local principal |
-| CAJERO | `cajero@mana.pe` | `Cajero12345` | Local principal |
+| Rol | Correo | Contraseña | Local | Permisos |
+|---|---|---|---|---|
+| DUENO | `dueno@mana.pe` | `Dueno12345` | Local principal | Todos (20) |
+| ADMINISTRADOR | `admin@mana.pe` | `Admin12345` | Local principal | Todos menos `LOCAL_GESTIONAR` (19); solo gestiona cajeros |
+| CAJERO | `cajero@mana.pe` | `Cajero12345` | Local principal | Atención diaria, clientes, consultas (7) |
 
-El administrador lo crea el backend al arrancar. El dueño y el cajero se crean desde **Usuarios → Nuevo usuario** (o con `POST /api/v1/usuarios` usando el token del administrador):
+**Jerarquía de roles:** DUENO > ADMINISTRADOR > CAJERO.
+
+- **DUENO:** tiene todos los permisos y gestiona usuarios de cualquier rol y los locales.
+- **ADMINISTRADOR:** tiene todo menos los locales y solo puede crear y gestionar **cajeros**.
+- **Usuarios gestionables:** el backend lo indica con `gestionable` en cada usuario. Nadie puede cambiar su propio rol ni desactivar su propia cuenta.
+
+**Cómo se crearon:** al arrancar, el backend crea el primer usuario (`admin@mana.pe`) si no existe. Tras el cambio de jerarquía, ese usuario apareció con rol DUENO en la base de desarrollo; se le devolvió el rol ADMINISTRADOR con `PATCH /api/v1/usuarios/{id}/rol`, usando el token del dueño, para tener un usuario por rol. El dueño y el cajero se crean desde **Usuarios → Nuevo usuario** (o con `POST /api/v1/usuarios`):
 
 | | DUENO | CAJERO |
 |---|---|---|
@@ -78,30 +84,37 @@ El administrador lo crea el backend al arrancar. El dueño y el cajero se crean 
 
 ✓ = acceso completo · 👁 = solo lectura · — = sin acceso (el menú no la muestra y la ruta lleva a "Acceso denegado").
 
-| Pantalla | Ruta | Permiso | ADMINISTRADOR | DUENO | CAJERO |
+| Pantalla | Ruta | Permiso | DUENO | ADMINISTRADOR | CAJERO |
 |---|---|---|:-:|:-:|:-:|
 | Iniciar sesión / Recuperar / Restablecer | `/login`, `/recuperar`, `/restablecer?token=` | Público | ✓ | ✓ | ✓ |
 | Inicio (accesos rápidos) | `/inicio` | Autenticado | ✓ | ✓ | ✓ |
 | Inicio: indicadores del día | `/inicio` | REPORTE_VER | ✓ | ✓ | — |
-| Mostrador de pensionistas | `/mostrador` | CONSUMO_REGISTRAR | ✓ | — | ✓ |
-| Anular consumo | (Mostrador) | CONSUMO_ANULAR | ✓ | — | — |
-| Punto de venta | `/pos` | VENTA_REGISTRAR | ✓ | — | ✓ |
-| Ventas (listado, detalle, cobrar pendientes) | `/ventas` | VENTA_REGISTRAR | ✓ | — | ✓ |
-| Anular venta | (detalle de venta) | VENTA_ANULAR | ✓ | — | — |
+| Mostrador de pensionistas | `/mostrador` | CONSUMO_REGISTRAR | ✓ | ✓ | ✓ |
+| Anular consumo | (Mostrador) | CONSUMO_ANULAR | ✓ | ✓ | — |
+| Punto de venta | `/pos` | VENTA_REGISTRAR | ✓ | ✓ | ✓ |
+| Ventas (listado, detalle, cobrar pendientes) | `/ventas` | VENTA_REGISTRAR | ✓ | ✓ | ✓ |
+| Anular venta | (detalle de venta) | VENTA_ANULAR | ✓ | ✓ | — |
 | Mi caja, cerrar caja, arqueo | `/caja`, `/caja/cerrar`, `/caja/:id` | CAJA_OPERAR | ✓ | ✓ | ✓ |
 | Historial de cajas | `/caja/historial` | CAJA_SUPERVISAR | ✓ | ✓ | — |
-| Clientes | `/clientes` | CLIENTE_LEER / CLIENTE_ESCRIBIR | ✓ | 👁 | ✓ |
-| Contratos (listado y detalle) | `/contratos` | CONTRATO_LEER | ✓ | 👁 | 👁 |
-| Nuevo contrato / Renovar | `/contratos/nuevo`, `/contratos/:id/renovar` | CONTRATO_REGISTRAR | ✓ | — | — |
-| Anular contrato | (detalle de contrato) | CONTRATO_ANULAR | ✓ | — | — |
-| Menú: programación, banco de platos, precios | `/menu/...` | MENU_LEER / MENU_GESTIONAR | ✓ | 👁 | 👁 |
+| Clientes | `/clientes` | CLIENTE_LEER / CLIENTE_ESCRIBIR | ✓ | ✓ | ✓ |
+| Contratos (listado y detalle) | `/contratos` | CONTRATO_LEER | ✓ | ✓ | 👁 |
+| Nuevo contrato / Renovar | `/contratos/nuevo`, `/contratos/:id/renovar` | CONTRATO_REGISTRAR | ✓ | ✓ | — |
+| Anular contrato | (detalle de contrato) | CONTRATO_ANULAR | ✓ | ✓ | — |
+| Menú: programación, banco de platos, precios | `/menu/...` | MENU_LEER / MENU_GESTIONAR | ✓ | ✓ | 👁 |
 | Planes | `/planes` | PLAN_GESTIONAR | ✓ | ✓ | — |
 | Calendario (días de no atención) | `/calendario` | CALENDARIO_GESTIONAR | ✓ | ✓ | — |
 | Inventario (stock, compras, kardex, bebidas, proveedores) | `/inventario/...` | INVENTARIO_GESTIONAR | ✓ | ✓ | — |
 | Gastos | `/gastos` | GASTO_GESTIONAR | ✓ | ✓ | — |
 | Reportes (6) | `/reportes/...` | REPORTE_VER | ✓ | ✓ | — |
-| Usuarios | `/usuarios` | USUARIO_GESTIONAR | ✓ | — | — |
+| Usuarios | `/usuarios` | USUARIO_GESTIONAR | ✓ (todos los roles) | ✓ (solo cajeros) | — |
 | Locales | `/locales` | LOCAL_GESTIONAR | ✓ | — | — |
+
+En **Usuarios**, Editar, Cambiar rol y Desactivar solo aparecen en los usuarios con `gestionable = true`; Cambiar rol y Desactivar nunca se ofrecen sobre la propia cuenta. El administrador solo puede elegir el rol CAJERO, tanto al crear como al cambiar el rol, y crea usuarios en su propio local (no tiene `LOCAL_GESTIONAR` para listar locales).
+
+**Menú lateral por rol:**
+- **DUENO:** los 5 grupos completos.
+- **ADMINISTRADOR:** los 5 grupos, sin Locales.
+- **CAJERO:** Atención diaria, Pensiones y Cocina y precios (solo Menú).
 
 Las pantallas que cobran o devuelven dinero (nuevo contrato, renovar, anular contrato, POS, cobrar o anular venta, recargo para llevar en el mostrador) exigen una **caja abierta**. Sin caja muestran "Abra su caja para continuar" y deshabilitan el botón de guardar.
 
@@ -123,6 +136,8 @@ Las pantallas que cobran o devuelven dinero (nuevo contrato, renovar, anular con
 | `core/guards/permiso.guard.spec.ts` | `permisoGuard` deja pasar o redirige a `/acceso-denegado` |
 | `core/interceptors/error.interceptor.spec.ts` | 401 cierra la sesión; 403 no; el 401 del login no cierra sesión |
 | `features/contratos/utils/renovacion.spec.ts` | Botón Renovar: solo ACTIVO y a 3 días o menos del fin |
+| `core/config/menu.spec.ts` | Grupos del menú lateral visibles por rol y grupo de la ruta actual |
+| `features/usuarios/models/usuario.model.spec.ts` | Roles asignables: el dueño asigna cualquiera; el administrador, solo CAJERO |
 
 ## Estructura
 
