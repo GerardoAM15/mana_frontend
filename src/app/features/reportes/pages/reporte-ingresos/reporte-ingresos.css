@@ -1,0 +1,3 @@
+.tabla tfoot th { background: var(--color-primario-oscuro); }
+.nota { color: var(--color-gris); font-size: 13px; }
+.rango { margin: 0; }

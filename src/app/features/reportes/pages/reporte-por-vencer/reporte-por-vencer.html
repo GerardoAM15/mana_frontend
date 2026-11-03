@@ -1,0 +1,60 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Reportes</p>
+      <h2>Contratos por vencer</h2>
+      <p class="rango solo-impresion">Vencen en los próximos {{ form.controls.dias.value }} días</p>
+    </div>
+    <a routerLink="/reportes" class="btn no-imprimir">Todos los reportes</a>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="buscar()" class="card filtros no-imprimir">
+    <label>Vencen en los próximos (días) <input type="number" min="0" max="365" class="input" formControlName="dias" /></label>
+    <label>Fin desde (opcional) <input type="date" class="input" formControlName="desde" /></label>
+    <label>Fin hasta (opcional) <input type="date" class="input" formControlName="hasta" /></label>
+    <div class="botones">
+      <button type="submit" class="btn btn-primary" [disabled]="cargando()">{{ cargando() ? 'Consultando...' : 'Consultar' }}</button>
+      <button type="button" class="btn" (click)="imprimir()">Imprimir</button>
+    </div>
+    @if (form.controls.dias.invalid) {
+      <small class="error completo">Ingrese de 0 a 365 días.</small>
+    }
+  </form>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <div class="tarjetas">
+    <div class="tarjeta"><span>Contratos por vencer</span><strong>{{ contratos().length }}</strong></div>
+    <div class="tarjeta acento"><span>Raciones sin consumir</span><strong>{{ racionesPendientes() }}</strong></div>
+    <div class="tarjeta peligro"><span>Vence primero</span><strong class="texto">{{ contratos()[0] ? (contratos()[0].fechaFin | date) : '-' }}</strong></div>
+  </div>
+
+  <div class="card seccion-reporte">
+    <h3>Saldo por contrato</h3>
+    <app-barras [series]="series" [filas]="filas()" />
+  </div>
+
+  <table class="tabla">
+    <thead><tr><th>Contrato</th><th>Cliente</th><th>Vence</th><th class="num">Días</th><th>Saldo por servicio</th><th class="no-imprimir"></th></tr></thead>
+    <tbody>
+      @for (c of contratos(); track c.contratoId) {
+        <tr>
+          <td>{{ c.numero }}</td>
+          <td>{{ c.clienteNombre }}<br /><small class="dni">DNI {{ c.dni }}</small></td>
+          <td>{{ c.fechaFin | date }}</td>
+          <td class="num" [class.urgente]="c.diasRestantes <= 1">{{ c.diasRestantes }}</td>
+          <td>
+            @for (s of c.saldos; track s.servicio) {
+              <span class="saldo">{{ catalogos.nombreServicio(s.servicio) }}: {{ s.saldoRaciones }}</span>
+            }
+          </td>
+          <td class="no-imprimir"><a [routerLink]="['/contratos', c.contratoId]" class="btn">Ver</a></td>
+        </tr>
+      } @empty {
+        <tr><td colspan="6" class="vacio">{{ cargando() ? 'Consultando...' : 'No hay contratos por vencer en ese rango.' }}</td></tr>
+      }
+    </tbody>
+  </table>
+</section>

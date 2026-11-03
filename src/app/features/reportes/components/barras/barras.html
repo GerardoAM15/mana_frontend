@@ -1,0 +1,24 @@
+<div class="barras">
+  @if (series().length > 1) {
+    <div class="leyenda">
+      @for (s of series(); track s.nombre) {
+        <span><i [class]="'muestra ' + s.tono"></i>{{ s.nombre }}</span>
+      }
+    </div>
+  }
+  @for (f of filas(); track f.etiqueta) {
+    <div class="fila">
+      <span class="etiqueta" [title]="f.etiqueta">{{ f.etiqueta }}</span>
+      <div class="pistas">
+        @for (v of f.valores; track $index; let i = $index) {
+          <div class="pista">
+            <div [class]="'barra ' + series()[i].tono" [class.negativa]="v < 0" [style.width.%]="ancho(v)"></div>
+            <span class="valor">{{ moneda() ? (v | currency) : (v | number) }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  } @empty {
+    <p class="vacio">No hay datos para graficar.</p>
+  }
+</div>

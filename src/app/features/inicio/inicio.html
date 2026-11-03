@@ -10,6 +10,15 @@
     }
   </div>
 
+  @if (veReportes) {
+    <h3>Hoy</h3>
+    <div class="tarjetas">
+      <a routerLink="/reportes/asistencia-diaria" class="tarjeta"><span>Consumos de hoy</span><strong>{{ indicadores()?.consumos ?? '…' }}</strong></a>
+      <a routerLink="/reportes/ventas-vs-pensiones" class="tarjeta acento"><span>Ventas de hoy</span><strong>{{ indicadores() ? (indicadores()!.ventas | currency) : '…' }}</strong></a>
+      <a routerLink="/reportes/contratos-por-vencer" class="tarjeta peligro"><span>Contratos por vencer (3 días)</span><strong>{{ indicadores()?.porVencer ?? '…' }}</strong></a>
+    </div>
+  }
+
   @if (accesos().length) {
     <h3>Accesos rápidos</h3>
     <div class="accesos">

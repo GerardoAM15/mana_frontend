@@ -1,0 +1,83 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Administración</p>
+      <h2>Usuarios</h2>
+    </div>
+    <a routerLink="nuevo" class="btn btn-primary">+ Nuevo usuario</a>
+  </header>
+
+  <input class="input buscador" placeholder="Buscar por nombre, correo o DNI..." [value]="texto()" (input)="texto.set($any($event.target).value)" />
+
+  @if (mensaje()) {
+    <div class="alerta exito">{{ mensaje() }}</div>
+  }
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <p>Cargando usuarios...</p>
+  } @else {
+    <table class="tabla">
+      <thead><tr><th>Nombre</th><th>Correo</th><th>DNI</th><th>Cargo</th><th>Local</th><th>Rol</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        @for (u of filtrados(); track u.id) {
+          <tr>
+            <td>{{ u.nombre }} {{ u.apellido }}{{ u.id === yo ? ' (usted)' : '' }}</td>
+            <td>{{ u.correo }}</td>
+            <td>{{ u.dni }}</td>
+            <td>{{ u.cargo }}</td>
+            <td>{{ u.localNombre }}</td>
+            <td><span class="rol">{{ catalogos.nombreRol(u.rol) }}</span></td>
+            <td><span class="badge" [class.inactivo]="!u.activo">{{ u.activo ? 'Activo' : 'Inactivo' }}</span></td>
+            <td class="acciones">
+              <a [routerLink]="[u.id, 'editar']" class="btn">Editar</a>
+              @if (u.id !== yo) {
+                <button type="button" class="btn" (click)="abrirCambioRol(u)">Cambiar rol</button>
+                @if (u.activo) {
+                  <button type="button" class="btn btn-peligro" (click)="porDesactivar.set(u)">Desactivar</button>
+                }
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="8" class="vacio">No hay registros.</td></tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
+
+@if (cambiandoRol(); as u) {
+  <app-confirmar-dialogo
+    [titulo]="'Cambiar el rol de ' + u.nombre + ' ' + u.apellido"
+    mensaje="El cambio cierra las sesiones abiertas del usuario: tendrá que volver a iniciar sesión."
+    textoConfirmar="Cambiar rol"
+    textoProcesando="Guardando..."
+    [procesando]="procesando()"
+    [confirmarDeshabilitado]="rolNuevo() === u.rol"
+    (confirmar)="confirmarRol()"
+    (cancelar)="cambiandoRol.set(null)"
+  >
+    <label class="campo-rol">
+      Nuevo rol
+      <select class="input" [value]="rolNuevo()" (change)="rolNuevo.set($any($event.target).value)">
+        @for (r of roles; track r) { <option [value]="r" [selected]="r === rolNuevo()">{{ catalogos.nombreRol(r) }}</option> }
+      </select>
+    </label>
+  </app-confirmar-dialogo>
+}
+
+@if (porDesactivar(); as u) {
+  <app-confirmar-dialogo
+    titulo="¿Desactivar este usuario?"
+    [mensaje]="u.nombre + ' ' + u.apellido + ' (' + u.correo + ') ya no podrá iniciar sesión.'"
+    textoConfirmar="Sí, desactivar"
+    textoProcesando="Desactivando..."
+    [peligro]="true"
+    [procesando]="procesando()"
+    (confirmar)="confirmarDesactivar()"
+    (cancelar)="porDesactivar.set(null)"
+  />
+}

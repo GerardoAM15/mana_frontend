@@ -1,0 +1,31 @@
+<section class="page">
+  <p class="eyebrow">Administración · locales</p>
+  <h2>{{ esEdicion() ? 'Editar local' : 'Nuevo local' }}</h2>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
+    <label>Nombre <input class="input" maxlength="120" formControlName="nombre" /></label>
+    @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+      <small class="error">El nombre es obligatorio (máximo 120 caracteres).</small>
+    }
+    @if (erroresServidor()['nombre']; as m) { <small class="error">{{ m }}</small> }
+
+    <label>Dirección (opcional) <input class="input" maxlength="250" formControlName="direccion" /></label>
+    @if (erroresServidor()['direccion']; as m) { <small class="error">{{ m }}</small> }
+
+    <label>Teléfono (opcional) <input class="input" maxlength="20" inputmode="tel" formControlName="telefono" /></label>
+    @if (erroresServidor()['telefono']; as m) { <small class="error">{{ m }}</small> }
+
+    <label class="check"><input type="checkbox" formControlName="activo" /> Activo</label>
+
+    <div class="acciones">
+      <a routerLink="/locales" class="btn">Cancelar</a>
+      <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : (esEdicion() ? 'Actualizar' : 'Registrar') }}
+      </button>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,77 @@
+<section class="page">
+  <p class="eyebrow">Administración · usuarios</p>
+  <h2>{{ esEdicion() ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
+    <fieldset>
+      <legend>Persona</legend>
+      <div class="grilla">
+        <label>DNI <input class="input" inputmode="numeric" maxlength="8" formControlName="dni" />
+          @if (form.controls.dni.touched && form.controls.dni.invalid) { <small class="error">8 dígitos.</small> }
+          @if (erroresServidor()['dni']; as m) { <small class="error">{{ m }}</small> }
+        </label>
+        <label>Nombre <input class="input" maxlength="100" formControlName="nombre" />
+          @if (form.controls.nombre.touched && form.controls.nombre.invalid) { <small class="error">Obligatorio.</small> }
+          @if (erroresServidor()['nombre']; as m) { <small class="error">{{ m }}</small> }
+        </label>
+        <label>Apellido <input class="input" maxlength="100" formControlName="apellido" />
+          @if (form.controls.apellido.touched && form.controls.apellido.invalid) { <small class="error">Obligatorio.</small> }
+          @if (erroresServidor()['apellido']; as m) { <small class="error">{{ m }}</small> }
+        </label>
+        <label>Teléfono (opcional) <input class="input" maxlength="20" inputmode="tel" formControlName="telefono" /></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Empleado</legend>
+      <div class="grilla">
+        <label>
+          Local
+          <select class="input" formControlName="localId">
+            <option [ngValue]="null" disabled>Seleccione</option>
+            @for (l of locales(); track l.id) { <option [ngValue]="l.id">{{ l.nombre }}</option> }
+          </select>
+          @if (form.controls.localId.touched && form.controls.localId.invalid) { <small class="error">Elija un local.</small> }
+        </label>
+        <label>Cargo <input class="input" maxlength="100" formControlName="cargo" />
+          @if (form.controls.cargo.touched && form.controls.cargo.invalid) { <small class="error">Obligatorio.</small> }
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Usuario</legend>
+      <div class="grilla">
+        <label>Correo <input type="email" class="input" maxlength="160" autocomplete="off" formControlName="correo" />
+          @if (form.controls.correo.touched && form.controls.correo.invalid) { <small class="error">Correo válido.</small> }
+          @if (erroresServidor()['correo']; as m) { <small class="error">{{ m }}</small> }
+        </label>
+        <label>
+          {{ esEdicion() ? 'Nueva contraseña (opcional)' : 'Contraseña' }}
+          <input type="password" class="input" maxlength="72" autocomplete="new-password" formControlName="clave" />
+          @if (form.controls.clave.touched && form.controls.clave.invalid) { <small class="error">De 8 a 72 caracteres.</small> }
+          @if (erroresServidor()['clave']; as m) { <small class="error">{{ m }}</small> }
+        </label>
+        <label>
+          Rol
+          <select class="input" formControlName="rol">
+            @for (r of roles; track r) { <option [value]="r">{{ catalogos.nombreRol(r) }}</option> }
+          </select>
+          @if (esEdicion()) { <small class="nota">Use "Cambiar rol" en el listado.</small> }
+        </label>
+        <label class="check"><input type="checkbox" formControlName="activo" /> Activo</label>
+      </div>
+    </fieldset>
+
+    <div class="acciones">
+      <a routerLink="/usuarios" class="btn">Cancelar</a>
+      <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : (esEdicion() ? 'Actualizar' : 'Registrar') }}
+      </button>
+    </div>
+  </form>
+</section>

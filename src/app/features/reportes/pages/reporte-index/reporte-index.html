@@ -1,0 +1,18 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Gestión</p>
+      <h2>Reportes</h2>
+    </div>
+  </header>
+
+  <div class="reportes">
+    @for (r of reportes; track r.ruta) {
+      <a [routerLink]="r.ruta" class="card reporte">
+        <span class="icono" aria-hidden="true">{{ r.icono }}</span>
+        <strong>{{ r.titulo }}</strong>
+        <small>{{ r.descripcion }}</small>
+      </a>
+    }
+  </div>
+</section>

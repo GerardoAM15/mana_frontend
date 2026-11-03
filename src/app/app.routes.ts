@@ -102,6 +102,24 @@ export const routes: Routes = [
         loadChildren: () => import('./features/gastos/gastos.routes').then(m => m.GASTOS_ROUTES),
       },
       {
+        path: 'reportes',
+        canActivate: [permisoGuard],
+        data: { permiso: 'REPORTE_VER' },
+        loadChildren: () => import('./features/reportes/reportes.routes').then(m => m.REPORTES_ROUTES),
+      },
+      {
+        path: 'usuarios',
+        canActivate: [permisoGuard],
+        data: { permiso: 'USUARIO_GESTIONAR' },
+        loadChildren: () => import('./features/usuarios/usuarios.routes').then(m => m.USUARIOS_ROUTES),
+      },
+      {
+        path: 'locales',
+        canActivate: [permisoGuard],
+        data: { permiso: 'LOCAL_GESTIONAR' },
+        loadChildren: () => import('./features/locales/locales.routes').then(m => m.LOCALES_ROUTES),
+      },
+      {
         path: 'acceso-denegado',
         title: 'Acceso denegado',
         loadComponent: () => import('./shared/pages/acceso-denegado/acceso-denegado').then(m => m.AccesoDenegado),

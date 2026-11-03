@@ -59,6 +59,17 @@ h3 { color: var(--color-primario); }
 .error { color: var(--color-peligro); }
 .vacio { padding: 24px; color: var(--color-gris); text-align: center; }
 
+/* Tarjetas de totales (reportes e inicio). */
+.tarjetas { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 18px; }
+.tarjeta { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border: 1px solid var(--color-borde); border-left: 4px solid var(--color-primario); border-radius: 8px; background: #fff; }
+.tarjeta span { color: var(--color-gris); font-size: 13px; }
+.tarjeta strong { color: var(--color-primario); font-size: 24px; }
+.tarjeta.acento { border-left-color: var(--color-acento); }
+.tarjeta.exito { border-left-color: var(--color-exito); }
+.tarjeta.peligro { border-left-color: var(--color-peligro); }
+.seccion-reporte { margin-bottom: 18px; }
+.seccion-reporte h3 { margin: 0 0 12px; }
+
 .solo-impresion { display: none; }
 
 @media print {
