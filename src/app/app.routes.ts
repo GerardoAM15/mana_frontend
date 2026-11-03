@@ -48,6 +48,18 @@ export const routes: Routes = [
         loadChildren: () => import('./features/mostrador/mostrador.routes').then(m => m.MOSTRADOR_ROUTES),
       },
       {
+        path: 'pos',
+        canActivate: [permisoGuard],
+        data: { permiso: 'VENTA_REGISTRAR' },
+        loadChildren: () => import('./features/pos/pos.routes').then(m => m.POS_ROUTES),
+      },
+      {
+        path: 'ventas',
+        canActivate: [permisoGuard],
+        data: { permiso: 'VENTA_REGISTRAR' },
+        loadChildren: () => import('./features/ventas/ventas.routes').then(m => m.VENTAS_ROUTES),
+      },
+      {
         path: 'clientes',
         canActivate: [permisoGuard],
         data: { permiso: 'CLIENTE_LEER' },

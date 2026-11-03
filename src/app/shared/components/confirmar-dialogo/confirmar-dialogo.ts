@@ -14,6 +14,7 @@ export class ConfirmarDialogo {
   readonly textoProcesando = input('Procesando...');
   readonly peligro = input(false);
   readonly procesando = input(false);
+  readonly confirmarDeshabilitado = input(false);
 
   readonly confirmar = output<void>();
   readonly cancelar = output<void>();

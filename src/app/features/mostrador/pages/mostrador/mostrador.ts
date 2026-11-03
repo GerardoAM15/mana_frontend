@@ -6,19 +6,13 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { catchError, debounceTime, map, of, switchMap, tap } from 'rxjs';
 import { CajaEstadoService } from '../../../../core/services/caja-estado.service';
 import { CatalogoService } from '../../../../core/services/catalogo-service';
-import {
-  aPlatosCantidad,
-  cantidadesPorCategoria,
-  cumpleComposicion,
-  quitarPlato,
-  Seleccion,
-  tocarPlato,
-} from '../../../../core/utils/composicion';
+import { aPlatosCantidad, cumpleComposicion, Seleccion } from '../../../../core/utils/composicion';
 import { horaActual, hoy } from '../../../../core/utils/fechas';
 import { mensajeError } from '../../../../core/utils/http-error';
 import { servicioPorHora } from '../../../../core/utils/servicios';
 import { AvisoCaja } from '../../../../shared/components/aviso-caja/aviso-caja';
-import { MenuDia, MenuPlato } from '../../../menu/models/menu.model';
+import { SelectorComposicion } from '../../../../shared/components/selector-composicion/selector-composicion';
+import { MenuDia } from '../../../menu/models/menu.model';
 import { ReglaCobro } from '../../../menu/models/regla-cobro.model';
 import { MenuService } from '../../../menu/services/menu-service';
 import { ReglaCobroService } from '../../../menu/services/regla-cobro-service';
@@ -26,13 +20,6 @@ import { ConsumosHoy } from '../../components/consumos-hoy/consumos-hoy';
 import { Pensionista } from '../../models/pensionista.model';
 import { ConsumoService } from '../../services/consumo-service';
 import { PensionistaService } from '../../services/pensionista-service';
-
-interface GrupoPlatos {
-  categoria: string;
-  requerida: number;
-  elegida: number;
-  platos: MenuPlato[];
-}
 
 interface Exito {
   nombre: string;
@@ -46,7 +33,7 @@ const ORDEN_SERVICIOS = ['D', 'A', 'C'];
 
 @Component({
   selector: 'app-mostrador',
-  imports: [ReactiveFormsModule, CurrencyPipe, DatePipe, AvisoCaja, ConsumosHoy],
+  imports: [ReactiveFormsModule, CurrencyPipe, DatePipe, AvisoCaja, ConsumosHoy, SelectorComposicion],
   templateUrl: './mostrador.html',
   styleUrl: './mostrador.css',
 })
@@ -82,15 +69,6 @@ export class Mostrador implements OnInit {
   protected readonly menu = computed(() => this.menus().find(m => m.servicio === this.servicio()) ?? null);
   protected readonly regla = computed(() => this.reglas().find(r => r.servicio === this.servicio() && r.activo) ?? null);
   private readonly platosMenu = computed(() => this.menu()?.platos ?? []);
-  protected readonly grupos = computed<GrupoPlatos[]>(() => {
-    const totales = cantidadesPorCategoria(this.seleccion(), this.platosMenu());
-    return (this.regla()?.componentes ?? []).map(c => ({
-      categoria: c.categoria,
-      requerida: c.cantidad,
-      elegida: totales[c.categoria] ?? 0,
-      platos: this.platosMenu().filter(p => p.categoria === c.categoria),
-    }));
-  });
   protected readonly completo = computed(() =>
     cumpleComposicion(this.regla()?.componentes ?? [], this.platosMenu(), this.seleccion()),
   );
@@ -166,18 +144,6 @@ export class Mostrador implements OnInit {
 
   protected saldo(servicio: string): number | null {
     return this.pensionista()?.servicios.find(d => d.servicio === servicio)?.saldoRaciones ?? null;
-  }
-
-  tocar(plato: MenuPlato, grupo: GrupoPlatos): void {
-    this.seleccion.update(s => tocarPlato(s, plato, grupo.requerida, this.platosMenu()));
-  }
-
-  quitar(plato: MenuPlato): void {
-    this.seleccion.update(s => quitarPlato(s, plato.platoId));
-  }
-
-  protected cantidad(plato: MenuPlato): number {
-    return this.seleccion()[plato.platoId] ?? 0;
   }
 
   registrar(): void {

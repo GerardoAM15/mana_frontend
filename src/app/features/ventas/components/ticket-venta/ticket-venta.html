@@ -1,0 +1,48 @@
+@let v = venta();
+<article class="ticket">
+  <header>
+    <strong class="marca">MANÁ</strong>
+    <span>{{ localNombre }}</span>
+    <span class="numero">{{ v.numero }}</span>
+    <span>{{ v.fecha | date: 'dd/MM/yyyy HH:mm' }} · {{ catalogos.nombreServicio(v.servicio) }}{{ v.paraLlevar ? ' · Para llevar' : '' }}</span>
+    <app-estado-badge [estado]="v.estado" />
+  </header>
+
+  <table>
+    <tbody>
+      @for (l of v.lineas; track l.id) {
+        <tr>
+          <td>
+            {{ l.cantidad }} × {{ l.descripcion }}
+            @for (p of l.platos; track p.platoId) {
+              <small>{{ p.cantidad > 1 ? p.cantidad + '× ' : '' }}{{ p.nombre }}</small>
+            }
+            <small>{{ l.precioUnitario | currency }}{{ recargo(l) ? ' + ' + (recargo(l) | currency) + ' llevar' : '' }} c/u</small>
+          </td>
+          <td class="num">{{ importe(l) | currency }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <dl class="totales">
+    @if (v.recargoLlevar) {
+      <div><dt>Recargo para llevar</dt><dd>{{ v.recargoLlevar | currency }}</dd></div>
+    }
+    <div class="total"><dt>Total</dt><dd>{{ v.total | currency }}</dd></div>
+    @for (p of v.pagos; track p.id) {
+      <div><dt>{{ catalogos.nombreMetodo(p.metodo) }}</dt><dd>{{ p.monto | currency }}</dd></div>
+    }
+    @for (d of v.devoluciones; track d.id) {
+      <div class="devolucion"><dt>Devolución {{ catalogos.nombreMetodo(d.metodo) }}</dt><dd>-{{ d.monto | currency }}</dd></div>
+    }
+  </dl>
+
+  @if (v.estado === 'PENDIENTE') {
+    <p class="aviso">Pendiente de pago</p>
+  }
+  @if (v.estado === 'ANULADA') {
+    <p class="aviso">Anulada el {{ v.anuladaEn | date: 'dd/MM/yyyy HH:mm' }}: {{ v.motivoAnulacion }}</p>
+  }
+  <p class="gracias">¡Gracias por su preferencia!</p>
+</article>

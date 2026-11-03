@@ -58,27 +58,6 @@
 .servicio small { color: var(--color-gris); }
 .servicio.activo { border-color: var(--color-primario); background: var(--color-primario-suave); }
 .servicio:disabled { opacity: .45; cursor: not-allowed; }
-.grupo { margin-bottom: 16px; }
-.grupo-titulo { display: flex; justify-content: space-between; margin: 0 0 8px; font-weight: 700; }
-.grupo-titulo span { color: var(--color-gris); }
-.grupo-titulo.listo span { color: var(--color-exito); }
-.opciones { display: flex; flex-wrap: wrap; gap: 10px; }
-.opcion { display: flex; }
-
-.plato {
-  min-height: 56px;
-  padding: 12px 18px;
-  border: 2px solid var(--color-borde);
-  border-radius: 10px;
-  background: #fff;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.opcion.elegida .plato { border-color: var(--color-acento); background: var(--color-acento-suave); font-weight: 700; }
-.cantidad { margin-left: 6px; color: var(--color-primario); }
-.menos { width: 48px; margin-left: -2px; border: 2px solid var(--color-acento); border-radius: 0 10px 10px 0; background: #fff; font-size: 22px; cursor: pointer; }
-.opcion.elegida:has(.menos) .plato { border-radius: 10px 0 0 10px; }
 .llevar { display: flex; align-items: center; gap: 10px; margin: 18px 0 12px; font-size: 18px; font-weight: 700; }
 .llevar input { width: 24px; height: 24px; }
 .recargo { color: var(--color-acento); }

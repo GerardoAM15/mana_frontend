@@ -17,7 +17,7 @@
 
     <div class="modal-acciones">
       <button type="button" class="btn" [disabled]="procesando()" (click)="cerrar()">Cancelar</button>
-      <button type="button" class="btn confirmar" [class.peligro]="peligro()" [disabled]="procesando()" (click)="confirmar.emit()">
+      <button type="button" class="btn confirmar" [class.peligro]="peligro()" [disabled]="procesando() || confirmarDeshabilitado()" (click)="confirmar.emit()">
         {{ procesando() ? textoProcesando() : textoConfirmar() }}
       </button>
     </div>

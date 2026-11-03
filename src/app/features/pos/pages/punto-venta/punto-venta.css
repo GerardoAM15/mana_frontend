@@ -1,0 +1,56 @@
+.pos { max-width: 1320px; }
+.servicios { display: flex; overflow: hidden; border: 2px solid var(--color-primario); border-radius: 10px; }
+.servicio { padding: 12px 20px; border: 0; color: var(--color-primario); background: #fff; font-size: 16px; font-weight: 700; cursor: pointer; }
+.servicio.activo { color: #fff; background: var(--color-primario); }
+.columnas { display: grid; grid-template-columns: minmax(0, 3fr) minmax(300px, 2fr); align-items: start; gap: 16px; }
+.catalogo, .pedido { padding: 18px; }
+.pestanias { display: flex; gap: 4px; margin-bottom: 14px; border-bottom: 2px solid var(--color-borde); }
+.pestanias button { margin-bottom: -2px; padding: 12px 18px; border: 0; border-bottom: 3px solid transparent; color: var(--color-gris); background: none; font-size: 16px; font-weight: 700; cursor: pointer; }
+.pestanias button.activa { border-bottom-color: var(--color-acento); color: var(--color-primario); }
+.productos { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+
+.producto {
+  position: relative;
+  display: flex;
+  min-height: 110px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border: 2px solid var(--color-borde);
+  border-radius: 12px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.producto:hover:not(:disabled) { border-color: var(--color-acento); }
+.producto:disabled { opacity: .45; cursor: not-allowed; }
+.precio { color: var(--color-primario); font-size: 18px; font-weight: 800; }
+.producto small { color: var(--color-gris); }
+.agotado { color: var(--color-peligro) !important; font-weight: 700; }
+.en-pedido { position: absolute; top: 8px; right: 8px; display: grid; min-width: 26px; height: 26px; place-items: center; border-radius: 13px; color: #fff; background: var(--color-acento); font-weight: 700; }
+.pedido { position: sticky; top: 12px; }
+.pedido h3 { margin: 0 0 12px; }
+.linea { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--color-borde); }
+.info { display: flex; flex-direction: column; }
+.info small { color: var(--color-gris); font-size: 13px; }
+.cantidad { display: flex; align-items: center; gap: 6px; }
+.cantidad button { width: 38px; height: 38px; border: 1px solid var(--color-borde); border-radius: 8px; background: #fff; font-size: 20px; cursor: pointer; }
+.cantidad button:disabled { opacity: .4; }
+.cantidad span { min-width: 22px; text-align: center; font-weight: 700; }
+.importe { min-width: 80px; text-align: right; font-weight: 700; }
+.llevar { display: flex; align-items: center; gap: 10px; margin: 14px 0; font-size: 17px; font-weight: 700; }
+.llevar input { width: 22px; height: 22px; }
+.totales { margin: 0 0 14px; }
+.totales div { display: flex; justify-content: space-between; padding: 4px 0; }
+.totales dd { margin: 0; }
+.total { font-size: 22px; font-weight: 800; color: var(--color-primario); }
+.grande { width: 100%; padding: 16px; font-size: 19px; }
+.secundarias { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-top: 8px; }
+.nota { color: var(--color-gris); }
+.acciones-ticket { display: flex; justify-content: center; gap: 10px; margin-top: 18px; }
+
+@media (max-width: 1000px) {
+  .columnas { grid-template-columns: 1fr; }
+  .pedido { position: static; }
+}

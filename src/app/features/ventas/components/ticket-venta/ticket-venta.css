@@ -1,0 +1,30 @@
+.ticket {
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto;
+  padding: 22px;
+  border: 1px dashed #c9bcb0;
+  border-radius: 6px;
+  background: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+}
+
+header { display: flex; flex-direction: column; align-items: center; gap: 3px; margin-bottom: 14px; text-align: center; }
+.marca { color: var(--color-primario); font-family: Georgia, serif; font-size: 24px; letter-spacing: .1em; }
+.numero { font-size: 18px; font-weight: 700; }
+table { width: 100%; border-collapse: collapse; border-top: 1px dashed #c9bcb0; border-bottom: 1px dashed #c9bcb0; }
+td { padding: 6px 0; vertical-align: top; }
+td small { display: block; padding-left: 12px; color: var(--color-gris); }
+.num { text-align: right; white-space: nowrap; }
+.totales { margin: 10px 0 0; }
+.totales div { display: flex; justify-content: space-between; padding: 2px 0; }
+.totales dd { margin: 0; }
+.total { font-size: 18px; font-weight: 700; }
+.devolucion { color: var(--color-peligro); }
+.aviso { margin: 10px 0 0; color: var(--color-aviso); font-weight: 700; text-align: center; }
+.gracias { margin: 14px 0 0; text-align: center; }
+
+@media print {
+  .ticket { max-width: 80mm; border: 0; padding: 0; }
+}

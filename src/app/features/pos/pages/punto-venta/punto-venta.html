@@ -1,0 +1,182 @@
+@if (venta(); as v) {
+  <!-- Ticket de la venta recién registrada -->
+  <section class="page">
+    <div class="alerta exito no-imprimir">
+      Venta {{ v.numero }} registrada {{ v.estado === 'PAGADA' ? 'y cobrada' : 'como pendiente de pago' }}.
+    </div>
+    <app-ticket-venta [venta]="v" />
+    <div class="acciones-ticket no-imprimir">
+      <button type="button" class="btn" (click)="imprimir()">Imprimir ticket</button>
+      @if (v.estado === 'PENDIENTE') {
+        <a [routerLink]="['/ventas', v.id]" class="btn">Cobrar después</a>
+      }
+      <button type="button" class="btn btn-primary" (click)="nuevaVenta()">Nueva venta</button>
+    </div>
+  </section>
+} @else {
+  <section class="page pos">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">Venta directa</p>
+        <h2>Punto de venta</h2>
+      </div>
+      <div class="servicios" role="group" aria-label="Servicio">
+        @for (s of servicios; track s) {
+          <button type="button" class="servicio" [class.activo]="servicio() === s" (click)="elegirServicio(s)">
+            {{ catalogos.nombreServicio(s) }}
+          </button>
+        }
+      </div>
+    </header>
+
+    <app-aviso-caja />
+
+    @if (error()) {
+      <div class="alerta">{{ error() }}</div>
+    }
+
+    <div class="columnas">
+      <!-- Catálogo -->
+      <section class="card catalogo">
+        <nav class="pestanias">
+          <button type="button" [class.activa]="pestania() === 'menus'" (click)="pestania.set('menus')">Menús</button>
+          <button type="button" [class.activa]="pestania() === 'sueltos'" (click)="pestania.set('sueltos')">Sueltos</button>
+          <button type="button" [class.activa]="pestania() === 'bebidas'" (click)="pestania.set('bebidas')">Bebidas</button>
+        </nav>
+
+        @if (cargando()) {
+          <p class="nota">Cargando catálogo...</p>
+        } @else if (catalogo(); as c) {
+          @switch (pestania()) {
+            @case ('menus') {
+              @if (!c.menu?.platos?.length) {
+                <p class="vacio">No hay menú programado hoy para {{ catalogos.nombreServicio(servicio()) }}.</p>
+              }
+              <div class="productos">
+                @for (r of reglas(); track r.id) {
+                  <button type="button" class="producto" [disabled]="!c.menu?.platos?.length" (click)="abrirCombo(r)">
+                    <strong>{{ r.nombre }}</strong>
+                    <span class="precio">{{ r.precioCombo | currency }}</span>
+                    <small>
+                      @for (k of r.componentes; track k.categoria; let ultimo = $last) {
+                        {{ k.cantidad }} {{ catalogos.nombreCategoria(k.categoria) }}{{ ultimo ? '' : ' + ' }}
+                      }
+                    </small>
+                  </button>
+                } @empty {
+                  <p class="vacio">No hay menús activos para este servicio.</p>
+                }
+              </div>
+            }
+            @case ('sueltos') {
+              <div class="productos">
+                @for (s of c.sueltos; track s.platoId) {
+                  <button type="button" class="producto" (click)="agregarSuelto(s)">
+                    <strong>{{ s.nombre }}</strong>
+                    <span class="precio">{{ s.precio | currency }}</span>
+                    <small>{{ catalogos.nombreCategoria(s.categoria) }}{{ s.recargoLlevar ? ' · llevar +' + (s.recargoLlevar | currency) : '' }}</small>
+                    @if (enPedido('P:' + s.platoId)) { <span class="en-pedido">{{ enPedido('P:' + s.platoId) }}</span> }
+                  </button>
+                } @empty {
+                  <p class="vacio">
+                    {{ servicio() === 'C' ? 'En la cena solo se vende el menú completo.' : 'No hay platos sueltos con precio en el menú de hoy.' }}
+                  </p>
+                }
+              </div>
+            }
+            @case ('bebidas') {
+              <div class="productos">
+                @for (b of c.bebidas; track b.bebidaId) {
+                  <button type="button" class="producto" [disabled]="b.stock <= enPedido('B:' + b.bebidaId)" (click)="agregarBebida(b)">
+                    <strong>{{ b.nombre }}</strong>
+                    <span class="precio">{{ b.precioVenta | currency }}</span>
+                    <small [class.agotado]="b.stock === 0">{{ b.stock === 0 ? 'Sin stock' : 'Stock: ' + b.stock }}</small>
+                    @if (enPedido('B:' + b.bebidaId)) { <span class="en-pedido">{{ enPedido('B:' + b.bebidaId) }}</span> }
+                  </button>
+                } @empty {
+                  <p class="vacio">No hay bebidas registradas en el local.</p>
+                }
+              </div>
+            }
+          }
+        }
+      </section>
+
+      <!-- Pedido -->
+      <aside class="card pedido">
+        <h3>Pedido · {{ catalogos.nombreServicio(servicio()) }}</h3>
+        @for (l of lineas(); track l.clave) {
+          <div class="linea">
+            <div class="info">
+              <strong>{{ l.descripcion }}</strong>
+              @for (d of l.detalle; track $index) { <small>{{ d }}</small> }
+              <small>{{ l.precioUnitario | currency }}{{ paraLlevar() && l.tipo !== 'BEBIDA' && l.recargoUnitario ? ' + ' + (l.recargoUnitario | currency) + ' llevar' : '' }}</small>
+            </div>
+            <div class="cantidad">
+              <button type="button" (click)="cambiarCantidad(l, -1)" aria-label="Quitar uno">−</button>
+              <span>{{ l.cantidad }}</span>
+              <button type="button" [disabled]="l.stock !== undefined && l.cantidad >= l.stock" (click)="cambiarCantidad(l, 1)" aria-label="Agregar uno">+</button>
+            </div>
+            <span class="importe">{{ subtotal(l) | currency }}</span>
+          </div>
+        } @empty {
+          <p class="vacio">Toque un producto para agregarlo.</p>
+        }
+
+        <label class="llevar">
+          <input type="checkbox" [checked]="paraLlevar()" (change)="paraLlevar.set($any($event.target).checked)" />
+          Para llevar
+        </label>
+
+        <dl class="totales">
+          <div><dt>Subtotal</dt><dd>{{ totales().subtotal | currency }}</dd></div>
+          <div><dt>Recargo para llevar</dt><dd>{{ totales().recargo | currency }}</dd></div>
+          <div class="total"><dt>Total</dt><dd>{{ totales().total | currency }}</dd></div>
+        </dl>
+
+        @if (errorVenta() && !cobrando()) {
+          <div class="alerta">{{ errorVenta() }}</div>
+        }
+
+        <button type="button" class="btn btn-primary grande" [disabled]="!puedeVender()" (click)="abrirCobro()">Cobrar ahora</button>
+        <div class="secundarias">
+          <button type="button" class="btn" [disabled]="!puedeVender()" (click)="registrar(false)">
+            {{ guardando() && !cobrando() ? 'Guardando...' : 'Dejar pendiente' }}
+          </button>
+          <button type="button" class="btn" [disabled]="lineas().length === 0 || guardando()" (click)="vaciar()">Vaciar</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+}
+
+@if (combo(); as r) {
+  <app-confirmar-dialogo
+    [titulo]="r.nombre + ' · ' + (r.precioCombo | currency)"
+    mensaje="Elija los platos según la composición del menú."
+    textoConfirmar="Agregar al pedido"
+    [confirmarDeshabilitado]="!comboCompleto()"
+    (confirmar)="agregarCombo()"
+    (cancelar)="combo.set(null)"
+  >
+    <app-selector-composicion [componentes]="r.componentes" [platos]="platosMenu()" [(seleccion)]="seleccionCombo" />
+  </app-confirmar-dialogo>
+}
+
+@if (cobrando()) {
+  <app-confirmar-dialogo
+    [titulo]="'Cobrar ' + (totales().total | currency)"
+    mensaje="Registre uno o varios métodos de pago. La suma debe ser exactamente el total."
+    textoConfirmar="Cobrar y registrar"
+    textoProcesando="Registrando..."
+    [procesando]="guardando()"
+    [confirmarDeshabilitado]="!pagos()?.valido"
+    (confirmar)="registrar(true)"
+    (cancelar)="cobrando.set(false)"
+  >
+    @if (errorVenta()) {
+      <div class="alerta">{{ errorVenta() }}</div>
+    }
+    <app-selector-pagos [total]="totales().total" [deshabilitado]="guardando()" (cambio)="pagos.set($event)" />
+  </app-confirmar-dialogo>
+}
