@@ -5,7 +5,7 @@ import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { CajaEstadoService } from '../../../../core/services/caja-estado.service';
 import { CatalogoService } from '../../../../core/services/catalogo-service';
-import { diasEntre, hoy } from '../../../../core/utils/fechas';
+import { hoy } from '../../../../core/utils/fechas';
 import { mensajeError } from '../../../../core/utils/http-error';
 import { sumar } from '../../../../core/utils/numeros';
 import { AvisoCaja } from '../../../../shared/components/aviso-caja/aviso-caja';
@@ -13,8 +13,7 @@ import { ConfirmarAnulacion } from '../../../../shared/components/confirmar-anul
 import { EstadoBadge } from '../../../../shared/components/estado-badge/estado-badge';
 import { Contrato } from '../../models/contrato.model';
 import { ContratoService } from '../../services/contrato-service';
-
-const DIAS_RENOVACION = 3;
+import { esRenovable } from '../../utils/renovacion';
 
 @Component({
   selector: 'app-contrato-detalle',
@@ -40,9 +39,7 @@ export class ContratoDetalle implements OnInit {
 
   protected readonly puedeRenovar = computed(() => {
     const c = this.contrato();
-    if (!c || c.estado !== 'ACTIVO' || !this.auth.tienePermiso('CONTRATO_REGISTRAR')) return false;
-    const dias = diasEntre(hoy(), c.fechaFin);
-    return dias >= 0 && dias <= DIAS_RENOVACION && !this.siguiente();
+    return !!c && this.auth.tienePermiso('CONTRATO_REGISTRAR') && esRenovable(c, this.hoy) && !this.siguiente();
   });
   // Solo sin consumos (ni siquiera anulados) y en estado PROGRAMADO o ACTIVO.
   protected readonly puedeAnular = computed(() => {

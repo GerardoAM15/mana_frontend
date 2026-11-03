@@ -7,7 +7,7 @@ import { Router, RouterLink } from '@angular/router';
 import { catchError, debounceTime, distinctUntilChanged, map, of, switchMap, tap } from 'rxjs';
 import { CajaEstadoService } from '../../../../core/services/caja-estado.service';
 import { CatalogoService } from '../../../../core/services/catalogo-service';
-import { diasEntre, hoy, sumarDias } from '../../../../core/utils/fechas';
+import { hoy, sumarDias } from '../../../../core/utils/fechas';
 import { erroresDeValidacion, mensajeError } from '../../../../core/utils/http-error';
 import { EstadoPagos } from '../../../../core/utils/pagos';
 import { AvisoCaja } from '../../../../shared/components/aviso-caja/aviso-caja';
@@ -18,9 +18,7 @@ import { Plan } from '../../../planes/models/plan.model';
 import { PlanService } from '../../../planes/services/plan-service';
 import { Contrato, SimulacionContrato, SimularContratoRequest } from '../../models/contrato.model';
 import { ContratoService } from '../../services/contrato-service';
-
-// Días antes del fin en que se permite renovar.
-const DIAS_RENOVACION = 3;
+import { esRenovable } from '../../utils/renovacion';
 
 // Nuevo contrato (/contratos/nuevo) y renovación (/contratos/:id/renovar) en una sola pantalla.
 @Component({
@@ -78,9 +76,7 @@ export class ContratoForm implements OnInit {
   });
   protected readonly renovable = computed(() => {
     const anterior = this.anterior();
-    if (!anterior) return true;
-    const dias = diasEntre(this.hoy, anterior.fechaFin);
-    return anterior.estado === 'ACTIVO' && dias >= 0 && dias <= DIAS_RENOVACION;
+    return !anterior || esRenovable(anterior, this.hoy);
   });
 
   private readonly solicitud = computed<SimularContratoRequest | null>(() => {

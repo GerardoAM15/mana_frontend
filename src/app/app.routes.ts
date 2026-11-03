@@ -42,6 +42,12 @@ export const routes: Routes = [
         loadChildren: () => import('./features/caja/caja.routes').then(m => m.CAJA_ROUTES),
       },
       {
+        path: 'mostrador',
+        canActivate: [permisoGuard],
+        data: { permiso: 'CONSUMO_REGISTRAR' },
+        loadChildren: () => import('./features/mostrador/mostrador.routes').then(m => m.MOSTRADOR_ROUTES),
+      },
+      {
         path: 'clientes',
         canActivate: [permisoGuard],
         data: { permiso: 'CLIENTE_LEER' },
