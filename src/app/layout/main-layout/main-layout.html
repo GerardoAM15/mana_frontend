@@ -1,6 +1,9 @@
-<div class="shell" [class.colapsado]="menuColapsado()">
-  <app-header class="area-header" (toggleMenu)="alternarMenu()" />
-  <app-sidebar class="area-sidebar" />
+<div class="shell" [class.colapsado]="!pantallaChica() && menuColapsado()" [class.panel-abierto]="pantallaChica() && panelAbierto()">
+  <app-header class="area-header" [menuAbierto]="menuVisible()" (toggleMenu)="alternarMenu()" />
+  <app-sidebar class="area-sidebar" id="menu-lateral" [attr.aria-hidden]="!menuVisible()" [attr.inert]="menuVisible() ? null : ''" />
+  @if (pantallaChica() && panelAbierto()) {
+    <div class="velo" (click)="cerrarPanel()" aria-hidden="true"></div>
+  }
   <main class="area-main">
     <router-outlet />
   </main>

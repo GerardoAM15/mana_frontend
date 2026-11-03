@@ -1,5 +1,6 @@
 <header class="header">
-  <button type="button" class="btn-menu" aria-label="Mostrar u ocultar menú" (click)="toggleMenu.emit()">☰</button>
+  <button type="button" class="btn-menu" aria-label="Mostrar u ocultar menú" aria-controls="menu-lateral"
+          [attr.aria-expanded]="menuAbierto()" (click)="toggleMenu.emit()">☰</button>
   <a routerLink="/inicio" class="marca"><span class="marca-icono">M</span><span class="marca-texto">MANÁ</span></a>
 
   @if (auth.usuario(); as u) {

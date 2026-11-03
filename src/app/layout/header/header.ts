@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { CajaEstadoService } from '../../core/services/caja-estado.service';
@@ -15,5 +15,6 @@ export class Header {
   protected readonly cajaEstado = inject(CajaEstadoService);
   protected readonly catalogos = inject(CatalogoService);
 
+  readonly menuAbierto = input(true);
   readonly toggleMenu = output<void>();
 }
