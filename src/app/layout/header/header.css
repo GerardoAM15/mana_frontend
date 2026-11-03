@@ -1,0 +1,48 @@
+:host { display: block; }
+
+.header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 20px;
+  color: #fff;
+  background: var(--color-primario);
+  border-bottom: 2px solid var(--color-acento);
+}
+
+.btn-menu {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 8px;
+  color: inherit;
+  background: transparent;
+  font-size: 19px;
+  cursor: pointer;
+}
+
+.btn-menu:hover { background: rgb(255 255 255 / 10%); }
+
+.marca {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-decoration: none;
+}
+
+.marca-icono {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 7px;
+  color: var(--color-primario);
+  background: var(--color-acento);
+}
+
+.usuario { margin-left: auto; font-size: 14px; opacity: .85; }

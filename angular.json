@@ -59,7 +59,8 @@
               "buildTarget": "mana_frontend:build:production"
             },
             "development": {
-              "buildTarget": "mana_frontend:build:development"
+              "buildTarget": "mana_frontend:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

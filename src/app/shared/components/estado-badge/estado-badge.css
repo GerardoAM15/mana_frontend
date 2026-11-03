@@ -1,0 +1,14 @@
+.estado {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.exito { color: var(--color-exito); background: var(--color-exito-suave); }
+.info { color: var(--color-info); background: var(--color-info-suave); }
+.aviso { color: var(--color-aviso); background: var(--color-aviso-suave); }
+.peligro { color: var(--color-peligro); background: var(--color-peligro-suave); }
+.neutro { color: #64748b; background: #edf1f5; }

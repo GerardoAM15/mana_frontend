@@ -1,0 +1,32 @@
+:host { display: block; }
+
+.sidebar {
+  height: 100%;
+  min-width: 240px;
+  padding: 18px 12px;
+  overflow-y: auto;
+  background: var(--color-superficie);
+  border-right: 1px solid var(--color-borde);
+}
+
+.titulo {
+  margin: 0 8px 10px;
+  color: var(--color-acento);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+a {
+  display: block;
+  margin-bottom: 2px;
+  padding: 10px 12px;
+  border-left: 3px solid transparent;
+  border-radius: 6px;
+  color: var(--color-texto);
+  text-decoration: none;
+}
+
+a:hover { background: var(--color-hover); }
+a.activo { border-left-color: var(--color-acento); color: #fff; background: var(--color-primario); }

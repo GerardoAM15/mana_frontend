@@ -1,1 +1,79 @@
-/* You can add global styles to this file, and also import other style files */
+/* Paleta MANÁ: vino tinto, dorado y crema. Todos los colores salen de estas variables. */
+:root {
+	--color-primario: #7a1f2b;
+	--color-primario-oscuro: #5c1620;
+	--color-primario-suave: #f4e6e8;
+	--color-acento: #c58a00;
+	--color-acento-suave: #fbf1d9;
+	--color-fondo: #faf6f0;
+	--color-superficie: #fff;
+	--color-texto: #2f2324;
+	--color-gris: #7a6d6e;
+	--color-borde: #e8ddd3;
+	--color-hover: #f6ede4;
+	--color-exito: #17653a;
+	--color-exito-suave: #dcfce7;
+	--color-peligro: #b42318;
+	--color-peligro-suave: #fff0ee;
+	--color-aviso: #8a5a00;
+	--color-aviso-suave: #fff6dd;
+	--color-info: #1d4f91;
+	--color-info-suave: #e6effb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+	margin: 0;
+	color: var(--color-texto);
+	font-family: Georgia, 'Times New Roman', serif;
+	background: var(--color-fondo);
+}
+
+button, input, select, textarea { font: inherit; }
+h2 { margin-top: 0; color: var(--color-primario); }
+h3 { color: var(--color-primario); }
+.page { max-width: 1180px; margin: 0 auto; }
+.card { padding: 28px; background: var(--color-superficie); border: 1px solid var(--color-borde); border-radius: 8px; box-shadow: 0 8px 22px rgb(122 31 43 / 7%); }
+.bienvenida { max-width: 720px; }
+.eyebrow { margin: 0 0 8px; color: var(--color-acento); font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.page-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.input { width: 100%; padding: 10px 12px; border: 1px solid #d8cbbf; border-radius: 5px; color: inherit; background: #fff; }
+.input:focus { outline: 2px solid var(--color-acento-suave); border-color: var(--color-acento); }
+.btn { display: inline-block; padding: 9px 14px; border: 1px solid #d8cbbf; border-radius: 5px; color: var(--color-texto); background: #fff; text-decoration: none; cursor: pointer; }
+.btn:hover:not(:disabled) { background: var(--color-hover); }
+.btn-primary { border-color: var(--color-primario); color: #fff; background: var(--color-primario); }
+.btn-primary:hover:not(:disabled) { background: var(--color-primario-oscuro); }
+.btn-acento { border-color: var(--color-acento); color: #fff; background: var(--color-acento); }
+.btn-peligro { border-color: var(--color-peligro); color: var(--color-peligro); }
+.btn:disabled { opacity: .6; cursor: not-allowed; }
+.alerta { margin-bottom: 16px; padding: 12px 16px; border-radius: 5px; color: #9f2118; background: var(--color-peligro-suave); }
+.alerta.exito { color: var(--color-exito); background: var(--color-exito-suave); }
+.alerta.aviso { color: var(--color-aviso); background: var(--color-aviso-suave); }
+.tabla { width: 100%; border-collapse: collapse; overflow: hidden; background: #fff; }
+.tabla th { padding: 11px 12px; color: #fff; text-align: left; background: var(--color-primario); }
+.tabla td { padding: 11px 12px; border-bottom: 1px solid var(--color-borde); }
+.tabla .num { text-align: right; white-space: nowrap; }
+.badge { padding: 3px 10px; border-radius: 999px; color: var(--color-exito); background: var(--color-exito-suave); font-size: 13px; }
+.badge.inactivo { color: #64748b; background: #edf1f5; }
+.error { color: var(--color-peligro); }
+.vacio { padding: 24px; color: var(--color-gris); text-align: center; }
+
+.solo-impresion { display: none; }
+
+@media print {
+	@page { size: A4; margin: 12mm; }
+	* { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+	body { background: #fff; }
+	.no-imprimir { display: none !important; }
+	.solo-impresion { display: block; }
+	.card { box-shadow: none; border-radius: 0; padding: 0; }
+	.tabla { border-radius: 0; }
+	.tabla th { background: #fff; color: #000; border-bottom: 2px solid var(--color-primario); }
+	.tabla tr { break-inside: avoid; }
+}
+
+@media (max-width: 700px) {
+	.page-header { align-items: flex-start; flex-direction: column; }
+	.tabla { display: block; overflow-x: auto; white-space: nowrap; }
+}
