@@ -1,0 +1,80 @@
+<section class="page">
+  <p class="eyebrow">Precios · menús públicos</p>
+  <h2>{{ esEdicion() ? 'Editar menú público' : 'Nuevo menú público' }}</h2>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
+    <div class="dos">
+      <div class="campo">
+        <label>Nombre <input class="input" maxlength="120" formControlName="nombre" /></label>
+        @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+          <small class="error">El nombre es obligatorio (máximo 120 caracteres).</small>
+        }
+        @if (erroresServidor()['nombre']; as m) { <small class="error">{{ m }}</small> }
+      </div>
+      <div class="campo">
+        <label>
+          Servicio
+          <select class="input" formControlName="servicio">
+            <option value="" disabled>Seleccione</option>
+            @for (s of catalogos.servicios(); track s.codigo) {
+              <option [value]="s.codigo">{{ s.nombre }}</option>
+            }
+          </select>
+        </label>
+        @if (form.controls.servicio.touched && form.controls.servicio.invalid) {
+          <small class="error">Elija un servicio.</small>
+        }
+      </div>
+      <div class="campo">
+        <label>Precio del menú <input type="number" min="0.01" step="0.01" class="input" formControlName="precioCombo" /></label>
+        @if (form.controls.precioCombo.touched && form.controls.precioCombo.invalid) {
+          <small class="error">Debe ser mayor a 0.</small>
+        }
+        @if (erroresServidor()['precioCombo']; as m) { <small class="error">{{ m }}</small> }
+      </div>
+      <div class="campo">
+        <label>Recargo para llevar <input type="number" min="0" step="0.01" class="input" formControlName="recargoLlevar" /></label>
+        @if (form.controls.recargoLlevar.touched && form.controls.recargoLlevar.invalid) {
+          <small class="error">Debe ser 0 o mayor.</small>
+        }
+      </div>
+    </div>
+
+    <fieldset formArrayName="componentes">
+      <legend>Composición</legend>
+      @for (c of form.controls.componentes.controls; track c; let i = $index) {
+        <div class="componente" [formGroupName]="i">
+          <input type="number" min="1" class="input cantidad" formControlName="cantidad" aria-label="Cantidad" />
+          <select class="input" formControlName="categoria" aria-label="Categoría">
+            <option value="" disabled>Categoría</option>
+            @for (cat of catalogos.categorias(); track cat.codigo) {
+              <option [value]="cat.codigo">{{ cat.nombre }}</option>
+            }
+          </select>
+          <button type="button" class="btn" [disabled]="form.controls.componentes.length === 1" (click)="quitarComponente(i)" aria-label="Quitar">✕</button>
+        </div>
+      }
+      @if (form.controls.componentes.touched && form.controls.componentes.invalid) {
+        <small class="error">Cada componente necesita categoría y una cantidad de 1 o más.</small>
+      }
+      @if (categoriaRepetida()) {
+        <small class="error">Una categoría no puede repetirse.</small>
+      }
+      @if (erroresServidor()['componentes']; as m) { <small class="error">{{ m }}</small> }
+      <button type="button" class="btn agregar" (click)="agregarComponente()">+ Agregar categoría</button>
+    </fieldset>
+
+    <label class="check"><input type="checkbox" formControlName="activo" /> Activo</label>
+
+    <div class="acciones">
+      <a routerLink="/menu/precios" class="btn">Cancelar</a>
+      <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : (esEdicion() ? 'Actualizar' : 'Registrar') }}
+      </button>
+    </div>
+  </form>
+</section>

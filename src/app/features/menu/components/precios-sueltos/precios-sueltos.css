@@ -1,0 +1,22 @@
+h3 { margin: 0 0 4px; }
+.nota { margin: 0 0 14px; color: var(--color-gris); font-size: 14px; }
+.monto { max-width: 120px; }
+.acciones { display: flex; gap: 8px; }
+input[type='checkbox'] { width: 18px; height: 18px; }
+
+.nuevo {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr) auto;
+  align-items: end;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px dashed var(--color-borde);
+  border-radius: 8px;
+}
+
+.nuevo label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 700; }
+
+@media (max-width: 760px) {
+  .nuevo { grid-template-columns: 1fr 1fr; }
+}

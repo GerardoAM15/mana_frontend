@@ -1,0 +1,7 @@
+.filtros { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.acciones { display: flex; gap: 8px; }
+.resumen { padding: 12px 14px; border: 1px solid var(--color-borde); border-radius: 10px; background: var(--color-fondo); }
+
+@media (max-width: 640px) {
+  .filtros { grid-template-columns: 1fr; }
+}

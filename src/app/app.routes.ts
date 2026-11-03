@@ -60,6 +60,24 @@ export const routes: Routes = [
         loadChildren: () => import('./features/contratos/contratos.routes').then(m => m.CONTRATOS_ROUTES),
       },
       {
+        path: 'menu',
+        canActivate: [permisoGuard],
+        data: { permiso: 'MENU_LEER' },
+        loadChildren: () => import('./features/menu/menu.routes').then(m => m.MENU_ROUTES),
+      },
+      {
+        path: 'planes',
+        canActivate: [permisoGuard],
+        data: { permiso: 'PLAN_GESTIONAR' },
+        loadChildren: () => import('./features/planes/planes.routes').then(m => m.PLANES_ROUTES),
+      },
+      {
+        path: 'calendario',
+        canActivate: [permisoGuard],
+        data: { permiso: 'CALENDARIO_GESTIONAR' },
+        loadChildren: () => import('./features/calendario/calendario.routes').then(m => m.CALENDARIO_ROUTES),
+      },
+      {
         path: 'acceso-denegado',
         title: 'Acceso denegado',
         loadComponent: () => import('./shared/pages/acceso-denegado/acceso-denegado').then(m => m.AccesoDenegado),

@@ -1,0 +1,84 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Calendario · {{ localNombre }}</p>
+      <h2>Días de no atención</h2>
+    </div>
+  </header>
+  <p class="nota">Feriados o cierres del local. Esos días no cuentan como raciones en los contratos nuevos y no se registran consumos.</p>
+
+  @if (mensaje()) {
+    <div class="alerta exito">{{ mensaje() }}</div>
+  }
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
+    <h3>{{ editando() ? 'Editar día' : 'Nuevo día de no atención' }}</h3>
+    <div class="campos">
+      <label>
+        Fecha
+        <input type="date" class="input" formControlName="fecha" />
+        @if (form.controls.fecha.touched && form.controls.fecha.invalid) { <small class="error">Elija la fecha.</small> }
+        @if (erroresServidor()['fecha']; as m) { <small class="error">{{ m }}</small> }
+      </label>
+      <label class="motivo">
+        Motivo
+        <input class="input" maxlength="160" placeholder="Ej.: Feriado nacional" formControlName="motivo" />
+        @if (form.controls.motivo.touched && form.controls.motivo.invalid) { <small class="error">El motivo es obligatorio (máximo 160).</small> }
+        @if (erroresServidor()['motivo']; as m) { <small class="error">{{ m }}</small> }
+      </label>
+      <div class="botones">
+        @if (editando()) {
+          <button type="button" class="btn" (click)="cancelarEdicion()">Cancelar</button>
+        }
+        <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : (editando() ? 'Actualizar' : 'Registrar') }}
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <form [formGroup]="filtros" (ngSubmit)="cargar()" class="filtros">
+    <label>Desde <input type="date" class="input" formControlName="desde" /></label>
+    <label>Hasta <input type="date" class="input" formControlName="hasta" /></label>
+    <button type="submit" class="btn">Buscar</button>
+  </form>
+
+  @if (cargando()) {
+    <p>Cargando...</p>
+  } @else {
+    <table class="tabla">
+      <thead><tr><th>Fecha</th><th>Día</th><th>Motivo</th><th></th></tr></thead>
+      <tbody>
+        @for (d of dias(); track d.id) {
+          <tr [class.editando]="editando()?.id === d.id">
+            <td>{{ d.fecha | date }}</td>
+            <td class="dia">{{ d.fecha | date: 'EEEE' }}</td>
+            <td>{{ d.motivo }}</td>
+            <td class="acciones">
+              <button type="button" class="btn" (click)="editar(d)">Editar</button>
+              <button type="button" class="btn btn-peligro" (click)="porEliminar.set(d)">Eliminar</button>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="4" class="vacio">No hay registros.</td></tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
+
+@if (porEliminar(); as d) {
+  <app-confirmar-dialogo
+    titulo="¿Eliminar este día de no atención?"
+    [mensaje]="(d.fecha | date) + ' · ' + d.motivo + '. Ese día volverá a atenderse con normalidad.'"
+    textoConfirmar="Sí, eliminar"
+    textoProcesando="Eliminando..."
+    [peligro]="true"
+    [procesando]="guardando()"
+    (confirmar)="confirmarEliminar()"
+    (cancelar)="porEliminar.set(null)"
+  />
+}

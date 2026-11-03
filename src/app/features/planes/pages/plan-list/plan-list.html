@@ -1,0 +1,52 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Pensiones</p>
+      <h2>Tipos de plan</h2>
+    </div>
+    <a routerLink="nuevo" class="btn btn-primary">+ Nuevo plan</a>
+  </header>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <p>Cargando planes...</p>
+  } @else {
+    <table class="tabla">
+      <thead><tr><th>Nombre</th><th>Periodo</th><th>Servicios</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        @for (p of planes(); track p.id) {
+          <tr>
+            <td>{{ p.nombre }}</td>
+            <td>{{ p.periodo === 'SEMANAL' ? 'Semanal (7 días)' : 'Mensual (1 mes)' }}</td>
+            <td>{{ nombresServicios(p) }}</td>
+            <td><span class="badge" [class.inactivo]="!p.activo">{{ p.activo ? 'Activo' : 'Inactivo' }}</span></td>
+            <td class="acciones">
+              <a [routerLink]="[p.id, 'editar']" class="btn">Editar</a>
+              @if (p.activo) {
+                <button type="button" class="btn btn-peligro" (click)="porEliminar.set(p)">Eliminar</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="5" class="vacio">No hay registros.</td></tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
+
+@if (porEliminar(); as p) {
+  <app-confirmar-dialogo
+    titulo="¿Eliminar este plan?"
+    [mensaje]="'El plan ' + p.nombre + ' quedará inactivo y dejará de ofrecerse en nuevos contratos. Los contratos existentes no cambian.'"
+    textoConfirmar="Sí, eliminar"
+    textoProcesando="Eliminando..."
+    [peligro]="true"
+    [procesando]="eliminando()"
+    (confirmar)="confirmarEliminar()"
+    (cancelar)="porEliminar.set(null)"
+  />
+}
