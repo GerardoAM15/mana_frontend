@@ -1,0 +1,21 @@
+.fondo {
+  display: grid;
+  min-height: 100vh;
+  padding: 16px;
+  place-items: center;
+  background: radial-gradient(circle at 20% 15%, #9c3443, var(--color-primario) 60%);
+}
+
+.acceso {
+  display: flex;
+  width: 100%;
+  max-width: 420px;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 3px solid var(--color-acento);
+}
+
+.formulario { display: flex; flex-direction: column; gap: 8px; }
+label { margin-top: 4px; font-weight: 700; }
+.ancho { width: 100%; margin-top: 10px; padding: 11px; text-align: center; }
+.enlace { margin-bottom: 8px; color: var(--color-primario); font-size: 14px; }

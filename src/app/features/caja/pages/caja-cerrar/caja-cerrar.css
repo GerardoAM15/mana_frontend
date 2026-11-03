@@ -1,0 +1,22 @@
+.contado { max-width: 140px; text-align: right; }
+.tabla tfoot th { background: var(--color-primario-oscuro); }
+.diferencia { font-weight: 700; }
+.cuadra { color: var(--color-exito); }
+.descuadre { color: var(--color-peligro); }
+.tabla tfoot .cuadra { color: #b9f3cc; }
+.tabla tfoot .descuadre { color: #ffc9c3; }
+
+.observacion { display: flex; flex-direction: column; gap: 5px; margin-top: 18px; font-weight: 700; }
+.acciones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.enlace { margin-left: 8px; color: inherit; font-weight: 700; }
+
+.resumen-cierre {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  background: var(--color-fondo);
+}
+
+.resumen-cierre span { display: flex; justify-content: space-between; }

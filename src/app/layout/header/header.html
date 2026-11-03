@@ -1,5 +1,19 @@
 <header class="header">
   <button type="button" class="btn-menu" aria-label="Mostrar u ocultar menú" (click)="toggleMenu.emit()">☰</button>
-  <a routerLink="/inicio" class="marca"><span class="marca-icono">M</span>MANÁ</a>
-  <span class="usuario">Invitado</span>
+  <a routerLink="/inicio" class="marca"><span class="marca-icono">M</span><span class="marca-texto">MANÁ</span></a>
+
+  @if (auth.usuario(); as u) {
+    <span class="local">{{ u.localNombre }}</span>
+
+    @if (auth.tienePermiso('CAJA_OPERAR') && cajaEstado.cargada()) {
+      <a routerLink="/caja" class="caja" [class.abierta]="cajaEstado.abierta()">
+        {{ cajaEstado.abierta() ? 'Caja abierta' : 'Caja cerrada' }}
+      </a>
+    }
+
+    <div class="usuario">
+      <span class="nombre">{{ u.nombreCompleto }} <small>{{ catalogos.nombreRol(u.rol) }}</small></span>
+      <button type="button" class="btn-salir" (click)="auth.cerrarSesion()">Salir</button>
+    </div>
+  }
 </header>

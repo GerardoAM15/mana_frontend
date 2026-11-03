@@ -45,4 +45,40 @@
   background: var(--color-acento);
 }
 
-.usuario { margin-left: auto; font-size: 14px; opacity: .85; }
+.local { padding-left: 16px; border-left: 1px solid rgb(255 255 255 / 25%); font-size: 14px; opacity: .9; }
+
+.caja {
+  padding: 4px 10px;
+  border: 1px solid rgb(255 255 255 / 35%);
+  border-radius: 999px;
+  color: #ffd9d9;
+  font-size: 13px;
+  text-decoration: none;
+}
+
+.caja::before { content: '● '; }
+.caja.abierta { border-color: #7ddc9c; color: #c9f5d6; }
+
+.usuario { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+.nombre { display: grid; font-size: 14px; text-align: right; }
+.nombre small { color: var(--color-acento-suave); font-size: 11px; letter-spacing: .06em; }
+
+.btn-salir {
+  padding: 6px 12px;
+  border: 1px solid rgb(197 138 0 / 70%);
+  border-radius: 6px;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+}
+
+.btn-salir:hover { color: var(--color-primario); background: var(--color-acento); }
+
+@media (max-width: 900px) {
+  .local, .nombre { display: none; }
+}
+
+@media (max-width: 520px) {
+  .header { gap: 10px; padding: 0 12px; }
+  .marca-texto { display: none; }
+}

@@ -1,0 +1,78 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Caja</p>
+      <h2>Mi caja</h2>
+    </div>
+    <a *siPermiso="'CAJA_SUPERVISAR'" routerLink="historial" class="btn">Historial de cajas</a>
+  </header>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando() && !cajaEstado.cargada()) {
+    <p>Consultando su caja...</p>
+  } @else if (cajaEstado.caja(); as caja) {
+    <div class="card cabecera">
+      <div>
+        <p class="eyebrow">Caja #{{ caja.id }} · abierta</p>
+        <p class="dato">Apertura: <strong>{{ caja.apertura | date: 'dd/MM/yyyy HH:mm' }}</strong></p>
+        <p class="dato">Monto inicial: <strong>{{ caja.montoInicial | currency }}</strong></p>
+      </div>
+      <div class="acciones">
+        <button type="button" class="btn" (click)="cargarResumen()">Actualizar</button>
+        <a routerLink="cerrar" class="btn btn-primary">Cerrar caja</a>
+      </div>
+    </div>
+
+    @if (resumen(); as r) {
+      <div class="contadores">
+        <div class="card contador"><span>Ventas</span><strong>{{ r.ventas }}</strong></div>
+        <div class="card contador"><span>Consumos</span><strong>{{ r.consumos }}</strong></div>
+        <div class="card contador"><span>Contratos</span><strong>{{ r.contratos }}</strong></div>
+        <div class="card contador total"><span>Total esperado</span><strong>{{ r.montoEsperado | currency }}</strong></div>
+      </div>
+
+      <table class="tabla">
+        <thead>
+          <tr><th>Método de pago</th><th class="num">Movimientos</th><th class="num">Esperado</th></tr>
+        </thead>
+        <tbody>
+          @for (m of r.metodos; track m.metodo) {
+            <tr>
+              <td>{{ catalogos.nombreMetodo(m.metodo) }}</td>
+              <td class="num">{{ m.movimientos }}</td>
+              <td class="num">{{ m.montoEsperado | currency }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="3" class="vacio">Aún no hay movimientos en esta caja.</td></tr>
+          }
+        </tbody>
+      </table>
+      <p class="nota">El resumen se actualiza solo cada 30 segundos.</p>
+    } @else {
+      <p>Cargando resumen...</p>
+    }
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="abrir()" class="card formulario">
+      <h3>Abrir caja</h3>
+      <p class="nota">No tiene una caja abierta. Ábrala para cobrar contratos, ventas y recargos.</p>
+      <label>
+        Monto inicial (efectivo)
+        <input type="number" min="0" step="0.01" class="input" formControlName="montoInicial" />
+      </label>
+      @if (form.controls.montoInicial.touched && form.controls.montoInicial.invalid) {
+        <small class="error">Ingrese un monto mayor o igual a 0.</small>
+      }
+      @if (erroresServidor()['montoInicial']; as mensaje) {
+        <small class="error">{{ mensaje }}</small>
+      }
+      <div class="acciones">
+        <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+          {{ guardando() ? 'Guardando...' : 'Abrir caja' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>

@@ -1,0 +1,33 @@
+<main class="fondo">
+  <section class="card acceso">
+    <p class="eyebrow">MANÁ</p>
+    <h2>Recuperar contraseña</h2>
+
+    @if (enviado()) {
+      <div class="alerta exito">Si el correo existe, te enviamos un enlace para restablecer tu contraseña.</div>
+      <a routerLink="/login" class="btn btn-primary ancho">Volver a iniciar sesión</a>
+    } @else {
+      <p class="sub">Ingrese su correo y le enviaremos un enlace válido por 5 minutos.</p>
+
+      @if (error()) {
+        <div class="alerta">{{ error() }}</div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="enviar()" class="formulario">
+        <label for="correo">Correo</label>
+        <input id="correo" type="email" class="input" formControlName="correo" autocomplete="email" />
+        @if (form.controls.correo.touched && form.controls.correo.invalid) {
+          <small class="error">Ingrese un correo válido.</small>
+        }
+        @if (erroresServidor()['correo']; as mensaje) {
+          <small class="error">{{ mensaje }}</small>
+        }
+
+        <button type="submit" class="btn btn-primary ancho" [disabled]="enviando()">
+          {{ enviando() ? 'Enviando...' : 'Enviar enlace' }}
+        </button>
+      </form>
+      <a routerLink="/login" class="enlace">Volver a iniciar sesión</a>
+    }
+  </section>
+</main>
