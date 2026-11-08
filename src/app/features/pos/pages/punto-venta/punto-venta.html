@@ -22,7 +22,8 @@
       </div>
       <div class="servicios" role="group" aria-label="Servicio">
         @for (s of servicios; track s) {
-          <button type="button" class="servicio" [class.activo]="servicio() === s" (click)="elegirServicio(s)">
+          <button type="button" class="servicio" [class.activo]="servicio() === s && !sinServicioHoy()" [disabled]="!atiendeHoy(s)"
+                  [title]="atiendeHoy(s) ? '' : 'No se atiende hoy'" (click)="elegirServicio(s)">
             {{ catalogos.nombreServicio(s) }}
           </button>
         }
@@ -35,6 +36,9 @@
       <div class="alerta">{{ error() }}</div>
     }
 
+    @if (sinServicioHoy()) {
+      <div class="alerta aviso sin-servicio">Hoy no hay servicios de atención.</div>
+    } @else {
     <div class="columnas">
       <!-- Catálogo -->
       <section class="card catalogo">
@@ -147,6 +151,7 @@
         </div>
       </aside>
     </div>
+    }
   </section>
 }
 

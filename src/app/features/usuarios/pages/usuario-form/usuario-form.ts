@@ -4,6 +4,8 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { CatalogoService } from '../../../../core/services/catalogo-service';
+import { ConsultaDocumentoService } from '../../../../core/services/consulta-documento.service';
+import { AutocompletadoDni } from '../../../../core/utils/autocompletado-dni';
 import { erroresDeValidacion, mensajeError } from '../../../../core/utils/http-error';
 import { LocalService } from '../../../locales/services/local-service';
 import { Rol, rolesAsignables, UsuarioRequest } from '../../models/usuario.model';
@@ -51,6 +53,9 @@ export class UsuarioForm implements OnInit {
     rol: this.fb.control<Rol>('CAJERO', Validators.required),
     activo: [true],
   });
+
+  // Autocompletado de nombre y apellido por DNI (RENIEC vía backend).
+  protected readonly autocompletado = new AutocompletadoDni(inject(ConsultaDocumentoService), this.form.controls, () => this.esEdicion());
 
   protected esEdicion(): boolean {
     return !!this.id();

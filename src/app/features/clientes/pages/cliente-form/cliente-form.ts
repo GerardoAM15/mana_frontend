@@ -2,6 +2,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { ConsultaDocumentoService } from '../../../../core/services/consulta-documento.service';
+import { AutocompletadoDni } from '../../../../core/utils/autocompletado-dni';
 import { erroresDeValidacion, mensajeError } from '../../../../core/utils/http-error';
 import { ClienteRequest } from '../../models/cliente.model';
 import { ClienteService } from '../../services/cliente-service';
@@ -32,6 +34,9 @@ export class ClienteForm implements OnInit {
     telefono: ['', [Validators.maxLength(20)]],
     activo: [true],
   });
+
+  // Autocompletado de nombre y apellido por DNI (RENIEC vía backend).
+  protected readonly autocompletado = new AutocompletadoDni(inject(ConsultaDocumentoService), this.form.controls, () => this.esEdicion());
 
   protected esEdicion(): boolean {
     return !!this.id();

@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { ConsultaDocumentoService, mensajeConsulta } from '../../../../core/services/consulta-documento.service';
 import { erroresDeValidacion, mensajeError } from '../../../../core/utils/http-error';
 import { Bebida } from '../../models/bebida.model';
 import { ProveedorRequest } from '../../models/proveedor.model';
@@ -19,6 +20,7 @@ export class ProveedorForm implements OnInit {
   private readonly proveedorService = inject(ProveedorService);
   private readonly bebidaService = inject(BebidaService);
   private readonly router = inject(Router);
+  private readonly consultas = inject(ConsultaDocumentoService);
 
   readonly id = input<string>();
   protected readonly bebidas = signal<Bebida[]>([]);
@@ -32,8 +34,38 @@ export class ProveedorForm implements OnInit {
     activo: [true],
   });
 
+  // RUC solo para autocompletar desde SUNAT: el proveedor no guarda RUC.
+  protected readonly ruc = this.fb.control('', Validators.pattern(/^(10|15|17|20)\d{9}$/));
+  protected readonly buscandoRuc = signal(false);
+  protected readonly avisoRuc = signal<string | null>(null);
+
   protected esEdicion(): boolean {
     return !!this.id();
+  }
+
+  buscarRuc(): void {
+    const ruc = this.ruc.value.trim();
+    if (!/^(10|15|17|20)\d{9}$/.test(ruc)) {
+      this.ruc.markAsTouched();
+      return;
+    }
+    this.buscandoRuc.set(true);
+    this.avisoRuc.set(null);
+    this.consultas.ruc(ruc).subscribe({
+      next: r => {
+        this.buscandoRuc.set(false);
+        this.form.controls.razonSocial.setValue(r.razonSocial);
+        if (r.telefono) this.form.controls.telefono.setValue(r.telefono);
+        const observado = (r.estado && r.estado !== 'ACTIVO') || (r.condicion && r.condicion !== 'HABIDO');
+        this.avisoRuc.set(observado
+          ? `Atención: en SUNAT figura ${r.estado ?? '-'} / ${r.condicion ?? '-'}.`
+          : 'Datos completados desde SUNAT; revíselos antes de guardar.');
+      },
+      error: (err: HttpErrorResponse) => {
+        this.buscandoRuc.set(false);
+        this.avisoRuc.set(mensajeConsulta(err));
+      },
+    });
   }
 
   ngOnInit(): void {

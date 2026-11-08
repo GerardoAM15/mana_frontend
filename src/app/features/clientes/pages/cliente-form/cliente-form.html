@@ -9,8 +9,16 @@
   <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
     <label>
       DNI
-      <input class="input" inputmode="numeric" maxlength="8" formControlName="dni" />
+      <span class="con-boton">
+        <input class="input" inputmode="numeric" maxlength="8" formControlName="dni" />
+        <button type="button" class="btn" (click)="autocompletado.buscar()" [disabled]="autocompletado.buscando()">
+          {{ autocompletado.buscando() ? 'Buscando...' : 'Buscar' }}
+        </button>
+      </span>
     </label>
+    @if (autocompletado.aviso(); as aviso) {
+      <small class="nota-consulta">{{ aviso }}</small>
+    }
     @if (form.controls.dni.touched && form.controls.dni.invalid) {
       <small class="error">El DNI debe tener exactamente 8 dígitos.</small>
     }

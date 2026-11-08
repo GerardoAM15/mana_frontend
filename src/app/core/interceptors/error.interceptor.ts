@@ -6,6 +6,7 @@ import { AuthService } from '../auth/auth.service';
 
 // 401 = sin token, token alterado o vencido: se cierra la sesión y se vuelve al login con returnUrl.
 // 403 = autenticado pero sin permiso: NO se cierra la sesión; el componente muestra el mensaje.
+// 429 = demasiados intentos: tampoco cierra la sesión; el componente muestra el mensaje del backend.
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);

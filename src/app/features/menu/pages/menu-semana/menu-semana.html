@@ -21,7 +21,7 @@
   </div>
 
   @if (mensaje()) {
-    <div class="alerta exito">{{ mensaje() }}</div>
+    <div class="alerta" [class.exito]="!mensajeAviso()" [class.aviso]="mensajeAviso()">{{ mensaje() }}</div>
   }
   @if (error()) {
     <div class="alerta">{{ error() }}</div>
@@ -123,7 +123,11 @@
       <label>Fecha destino <input type="date" class="input" formControlName="fechaDestino" /></label>
       <div class="servicios-check">
         @for (s of servicios; track s) {
-          <label class="check"><input type="checkbox" [formControlName]="s" /> {{ catalogos.nombreServicio(s) }}</label>
+          @let motivo = motivoNoAtiende(formClonar.controls.fechaDestino.value, s);
+          <label class="check" [class.no-disponible]="!!motivo" [title]="motivo ?? ''">
+            <input type="checkbox" [formControlName]="s" /> {{ catalogos.nombreServicio(s) }}
+            @if (motivo) { <small>({{ motivo }})</small> }
+          </label>
         }
       </div>
     </form>
@@ -137,6 +141,7 @@
     textoConfirmar="Copiar"
     textoProcesando="Copiando..."
     [procesando]="guardando()"
+    [confirmarDeshabilitado]="!!motivoSinCena()"
     (confirmar)="copiarACena()"
     (cancelar)="cerrarModales()"
   >
@@ -146,5 +151,8 @@
     <form [formGroup]="formCopiar" class="modal-form">
       <label>Fecha <input type="date" class="input" formControlName="fecha" /></label>
     </form>
+    @if (motivoSinCena(); as motivo) {
+      <div class="alerta aviso sin-cena">{{ motivo }}</div>
+    }
   </app-confirmar-dialogo>
 }

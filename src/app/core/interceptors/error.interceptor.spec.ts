@@ -51,6 +51,11 @@ describe('errorInterceptor', () => {
     expect(cerrarSesion).not.toHaveBeenCalled();
   });
 
+  it('con 429 (demasiados intentos) NO cierra la sesión y propaga el error', () => {
+    expect(responder('/api/v1/ventas', 429)).toBe(429);
+    expect(cerrarSesion).not.toHaveBeenCalled();
+  });
+
   it('otros errores (409, 500) pasan sin cerrar sesión', () => {
     expect(responder('/api/v1/ventas', 409)).toBe(409);
     expect(responder('/api/v1/ventas', 500)).toBe(500);

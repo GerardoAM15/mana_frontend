@@ -13,7 +13,14 @@
     <fieldset>
       <legend>Persona</legend>
       <div class="grilla">
-        <label>DNI <input class="input" inputmode="numeric" maxlength="8" formControlName="dni" />
+        <label>DNI
+          <span class="con-boton">
+            <input class="input" inputmode="numeric" maxlength="8" formControlName="dni" />
+            <button type="button" class="btn" (click)="autocompletado.buscar()" [disabled]="autocompletado.buscando() || !editable()">
+              {{ autocompletado.buscando() ? 'Buscando...' : 'Buscar' }}
+            </button>
+          </span>
+          @if (autocompletado.aviso(); as aviso) { <small class="nota-consulta">{{ aviso }}</small> }
           @if (form.controls.dni.touched && form.controls.dni.invalid) { <small class="error">8 dígitos.</small> }
           @if (erroresServidor()['dni']; as m) { <small class="error">{{ m }}</small> }
         </label>

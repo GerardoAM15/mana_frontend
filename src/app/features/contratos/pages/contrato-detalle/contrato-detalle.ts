@@ -92,7 +92,9 @@ export class ContratoDetalle implements OnInit {
     this.contratoService
       .buscar({ dni: contrato.dni, estado: null, desde: null, hasta: null, localId: null }, 0, 50)
       .subscribe({
-        next: pagina => this.siguiente.set(pagina.contenido.find(c => c.anteriorId === contrato.id) ?? null),
+        // Una renovación ANULADA no cuenta: el contrato se puede volver a renovar.
+        next: pagina =>
+          this.siguiente.set(pagina.contenido.find(c => c.anteriorId === contrato.id && c.estado !== 'ANULADO') ?? null),
         error: () => undefined,
       });
   }

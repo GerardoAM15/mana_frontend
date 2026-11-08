@@ -5,10 +5,10 @@ import { RouterLink } from '@angular/router';
 import { CajaEstadoService } from '../../../../core/services/caja-estado.service';
 import { CatalogoService } from '../../../../core/services/catalogo-service';
 import { aPlatosCantidad, cumpleComposicion, Seleccion } from '../../../../core/utils/composicion';
-import { horaActual } from '../../../../core/utils/fechas';
+import { diaSemanaIso, horaActual, hoy } from '../../../../core/utils/fechas';
 import { mensajeError } from '../../../../core/utils/http-error';
 import { EstadoPagos } from '../../../../core/utils/pagos';
-import { servicioPorHora } from '../../../../core/utils/servicios';
+import { servicioInicial, servicioPorHora } from '../../../../core/utils/servicios';
 import { AvisoCaja } from '../../../../shared/components/aviso-caja/aviso-caja';
 import { ConfirmarDialogo } from '../../../../shared/components/confirmar-dialogo/confirmar-dialogo';
 import { SelectorComposicion } from '../../../../shared/components/selector-composicion/selector-composicion';
@@ -37,9 +37,13 @@ export class PuntoVenta implements OnInit {
   protected readonly catalogos = inject(CatalogoService);
 
   protected readonly servicios = SERVICIOS;
+  // Día ISO de hoy en Lima: los servicios que no se atienden hoy (p. ej. la cena el viernes) se deshabilitan.
+  private readonly diaHoy = diaSemanaIso(hoy());
   protected readonly servicio = signal(servicioPorHora(horaActual()));
+  // true si hoy no se atiende ningún servicio: no se carga el catálogo.
+  protected readonly sinServicioHoy = signal(false);
   protected readonly catalogo = signal<PosCatalogo | null>(null);
-  protected readonly cargando = signal(false);
+  protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly pestania = signal<Pestania>('menus');
 
@@ -68,12 +72,33 @@ export class PuntoVenta implements OnInit {
   );
 
   ngOnInit(): void {
-    this.catalogos.cargar().subscribe({ error: () => undefined });
+    // Los días de atención vienen de los catálogos: se espera a tenerlos para elegir el servicio.
+    this.catalogos.cargar().subscribe({
+      next: () => this.iniciarServicio(),
+      // Sin catálogos no se puede saber qué se atiende hoy; el backend responde si no corresponde.
+      error: () => this.cargarCatalogo(),
+    });
+  }
+
+  // Los feriados del local no se consultan aquí (exigen CALENDARIO_GESTIONAR): si hoy es feriado,
+  // el backend responde con su mensaje y se muestra como error.
+  protected atiendeHoy(servicio: string): boolean {
+    return this.catalogos.seAtiende(servicio, this.diaHoy);
+  }
+
+  private iniciarServicio(): void {
+    const inicial = servicioInicial(SERVICIOS.filter(s => this.atiendeHoy(s)), servicioPorHora(horaActual()));
+    if (!inicial) {
+      this.sinServicioHoy.set(true);
+      this.cargando.set(false);
+      return;
+    }
+    this.servicio.set(inicial);
     this.cargarCatalogo();
   }
 
   elegirServicio(servicio: string): void {
-    if (servicio === this.servicio()) return;
+    if (servicio === this.servicio() || !this.atiendeHoy(servicio)) return;
     this.servicio.set(servicio);
     // Cada venta es de un solo servicio: al cambiarlo se vacía el pedido.
     this.lineas.set([]);

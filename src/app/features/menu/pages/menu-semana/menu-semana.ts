@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin, Observable } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -18,8 +19,10 @@ import { ReglaCobro } from '../../models/regla-cobro.model';
 import { MenuService } from '../../services/menu-service';
 import { PlatoService } from '../../services/plato-service';
 import { ReglaCobroService } from '../../services/regla-cobro-service';
+import { mensajeClonado, serviciosOmitidos } from '../../utils/clonado';
 
 const SERVICIOS = ['D', 'A', 'C'];
+type CodigoServicio = 'D' | 'A' | 'C';
 
 interface Celda {
   fecha: string;
@@ -59,6 +62,8 @@ export class MenuSemana implements OnInit {
   protected readonly cargando = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly mensaje = signal<string | null>(null);
+  // true si el mensaje es un aviso (p. ej. un servicio omitido al clonar) y no un éxito simple.
+  protected readonly mensajeAviso = signal(false);
 
   private readonly porCelda = computed(() => new Map(this.menus().map(m => [`${m.fecha}|${m.servicio}`, m])));
   private readonly feriadoPorFecha = computed(() => new Map(this.feriados().map(f => [f.fecha, f.motivo])));
@@ -95,9 +100,28 @@ export class MenuSemana implements OnInit {
     C: [true],
   });
   protected readonly formCopiar = this.fb.group({ fecha: [this.hoy, Validators.required] });
+  private readonly fechaCopiar = toSignal(this.formCopiar.controls.fecha.valueChanges, { initialValue: this.hoy });
+  // Por qué no se puede copiar a la cena en la fecha elegida (null si se puede).
+  protected readonly motivoSinCena = computed(() => {
+    const fecha = this.fechaCopiar();
+    if (!fecha) return null;
+    if (this.feriado(fecha)) return `Ese día es feriado (${this.feriado(fecha)}): no se atiende la cena.`;
+    if (!this.catalogos.seAtiende('C', diaSemanaIso(fecha))) return 'La cena no se atiende ese día de la semana.';
+    return null;
+  });
+
+  constructor() {
+    // Al cambiar la fecha destino se recalculan los servicios que se pueden clonar.
+    this.formClonar.controls.fechaDestino.valueChanges.pipe(takeUntilDestroyed()).subscribe(fecha => {
+      this.actualizarServiciosClonar();
+      this.cargarFeriado(fecha, () => this.actualizarServiciosClonar());
+    });
+    this.formCopiar.controls.fecha.valueChanges.pipe(takeUntilDestroyed()).subscribe(fecha => this.cargarFeriado(fecha));
+  }
 
   ngOnInit(): void {
-    this.catalogos.cargar().subscribe({ error: () => undefined });
+    // Los días de atención vienen de los catálogos: al tenerlos se recalculan los servicios del clon.
+    this.catalogos.cargar().subscribe({ next: () => this.actualizarServiciosClonar(), error: () => undefined });
     forkJoin([this.platoService.listar(), this.reglaService.listar()]).subscribe({
       next: ([platos, reglas]) => {
         this.platos.set(platos);
@@ -188,11 +212,19 @@ export class MenuSemana implements OnInit {
     this.clonando.set(true);
   }
 
+  // Motivo por el que un servicio no se puede clonar a la fecha (null si se puede).
+  protected motivoNoAtiende(fecha: string, servicio: string): string | null {
+    if (!fecha) return null;
+    if (this.feriado(fecha)) return 'feriado';
+    if (!this.catalogos.seAtiende(servicio, diaSemanaIso(fecha))) return 'no se atiende ese día';
+    return null;
+  }
+
   clonar(): void {
     const v = this.formClonar.getRawValue();
-    const servicios = SERVICIOS.filter(s => v[s as 'D' | 'A' | 'C']);
+    const servicios = SERVICIOS.filter(s => v[s as CodigoServicio] && !this.motivoNoAtiende(v.fechaDestino, s));
     if (this.formClonar.invalid || servicios.length === 0) {
-      this.errorModal.set('Elija las fechas y al menos un servicio.');
+      this.errorModal.set('Elija las fechas y al menos un servicio que se atienda en la fecha destino.');
       return;
     }
     if (v.fechaOrigen === v.fechaDestino) {
@@ -202,7 +234,15 @@ export class MenuSemana implements OnInit {
     this.ejecutar(
       this.menuService.clonar({ fechaOrigen: v.fechaOrigen, fechaDestino: v.fechaDestino, servicios }),
       () => this.clonando.set(false),
-      'Día clonado.',
+      // El backend puede omitir servicios: se compara lo pedido con lo devuelto.
+      clonados => {
+        const omitidos = serviciosOmitidos(servicios, clonados).map(s => ({
+          nombre: this.catalogos.nombreServicio(s),
+          motivo: this.motivoNoAtiende(v.fechaDestino, s) ?? 'no se clonó',
+        }));
+        this.mensajeAviso.set(omitidos.length > 0);
+        return mensajeClonado(omitidos);
+      },
     );
   }
 
@@ -213,7 +253,7 @@ export class MenuSemana implements OnInit {
   }
 
   copiarACena(): void {
-    if (this.formCopiar.invalid) return;
+    if (this.formCopiar.invalid || this.motivoSinCena()) return;
     this.ejecutar(
       this.menuService.copiarACena({ fecha: this.formCopiar.getRawValue().fecha }),
       () => this.copiando.set(false),
@@ -228,15 +268,43 @@ export class MenuSemana implements OnInit {
     this.copiando.set(false);
   }
 
-  private ejecutar(peticion: Observable<unknown>, alTerminar: () => void, exito: string): void {
+  // Deshabilita (y desmarca) los servicios que no se atienden en la fecha destino o caen en feriado.
+  private actualizarServiciosClonar(): void {
+    const destino = this.formClonar.controls.fechaDestino.value;
+    for (const s of SERVICIOS) {
+      const control = this.formClonar.controls[s as CodigoServicio];
+      if (this.motivoNoAtiende(destino, s)) {
+        control.setValue(false, { emitEvent: false });
+        control.disable({ emitEvent: false });
+      } else if (control.disabled) {
+        control.enable({ emitEvent: false });
+        control.setValue(true, { emitEvent: false });
+      }
+    }
+  }
+
+  // Trae los feriados de una fecha fuera de la semana visible para que feriado() la conozca.
+  private cargarFeriado(fecha: string, alTerminar?: () => void): void {
+    if (!fecha || !this.auth.tienePermiso('CALENDARIO_GESTIONAR')) return;
+    this.diaNoAtencionService.listar({ desde: fecha, hasta: fecha, localId: null }).subscribe({
+      next: nuevos => {
+        this.feriados.update(actuales => [...actuales.filter(f => !nuevos.some(n => n.id === f.id)), ...nuevos]);
+        alTerminar?.();
+      },
+      error: () => undefined,
+    });
+  }
+
+  private ejecutar<T>(peticion: Observable<T>, alTerminar: () => void, exito: string | ((respuesta: T) => string)): void {
     this.guardando.set(true);
     this.errorModal.set(null);
     this.mensaje.set(null);
+    this.mensajeAviso.set(false);
     peticion.subscribe({
-      next: () => {
+      next: respuesta => {
         this.guardando.set(false);
         alTerminar();
-        this.mensaje.set(exito);
+        this.mensaje.set(typeof exito === 'string' ? exito : exito(respuesta));
         this.cargarSemana();
       },
       error: (err: HttpErrorResponse) => {

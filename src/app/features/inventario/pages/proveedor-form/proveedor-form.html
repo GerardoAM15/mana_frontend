@@ -7,6 +7,19 @@
   }
 
   <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
+    <label>RUC (opcional, para autocompletar desde SUNAT)
+      <span class="con-boton">
+        <input class="input" inputmode="numeric" maxlength="11" [formControl]="ruc" (keydown.enter)="$event.preventDefault(); buscarRuc()" />
+        <button type="button" class="btn" (click)="buscarRuc()" [disabled]="buscandoRuc()">
+          {{ buscandoRuc() ? 'Buscando...' : 'Buscar' }}
+        </button>
+      </span>
+    </label>
+    @if (ruc.touched && ruc.invalid) {
+      <small class="error">El RUC tiene 11 dígitos y empieza con 10, 15, 17 o 20.</small>
+    }
+    @if (avisoRuc(); as aviso) { <small class="nota-consulta">{{ aviso }}</small> }
+
     <label>Razón social <input class="input" maxlength="160" formControlName="razonSocial" /></label>
     @if (form.controls.razonSocial.touched && form.controls.razonSocial.invalid) {
       <small class="error">La razón social es obligatoria (máximo 160 caracteres).</small>
