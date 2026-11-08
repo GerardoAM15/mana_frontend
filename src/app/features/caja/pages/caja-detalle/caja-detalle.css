@@ -10,8 +10,7 @@
 }
 
 .datos dt { color: var(--color-gris); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
-.datos dd { margin: 2px 0 0; font-weight: 700; }
-.tabla tfoot th { background: var(--color-primario-oscuro); }
-.cuadra { color: var(--color-exito); font-weight: 700; }
-.descuadre { color: var(--color-peligro); font-weight: 700; }
+.datos dd { margin: 2px 0 0; font-weight: 600; }
+.cuadra { color: var(--color-exito); font-weight: 600; }
+.descuadre { color: var(--color-peligro); font-weight: 600; }
 .observacion { margin: 16px 0 0; }

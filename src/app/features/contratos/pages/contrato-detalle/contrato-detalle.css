@@ -11,10 +11,9 @@
 }
 
 .datos dt { color: var(--color-gris); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
-.datos dd { margin: 2px 0 0; font-weight: 700; }
+.datos dd { margin: 2px 0 0; font-weight: 600; }
 .datos a { color: var(--color-primario); }
 h4 { margin: 22px 0 10px; color: var(--color-primario); }
-.tabla tfoot th { background: var(--color-primario-oscuro); }
 .devolucion td { color: var(--color-peligro); }
 .anulado td { color: var(--color-gris); text-decoration: line-through; }
 .plato { display: block; font-size: 14px; }

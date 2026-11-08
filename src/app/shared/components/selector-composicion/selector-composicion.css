@@ -1,6 +1,6 @@
 :host { display: block; }
 .grupo { margin-bottom: 16px; }
-.grupo-titulo { display: flex; justify-content: space-between; margin: 0 0 8px; font-weight: 700; }
+.grupo-titulo { display: flex; justify-content: space-between; margin: 0 0 8px; font-weight: 600; }
 .grupo-titulo span { color: var(--color-gris); }
 .grupo-titulo.listo span { color: var(--color-exito); }
 .opciones { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -16,7 +16,7 @@
   cursor: pointer;
 }
 
-.opcion.elegida .plato { border-color: var(--color-acento); background: var(--color-acento-suave); font-weight: 700; }
+.opcion.elegida .plato { border-color: var(--color-acento); background: var(--color-acento-suave); font-weight: 600; }
 .opcion.elegida:has(.menos) .plato { border-radius: 10px 0 0 10px; }
 .cantidad { margin-left: 6px; color: var(--color-primario); }
 .menos { width: 48px; margin-left: -2px; border: 2px solid var(--color-acento); border-radius: 0 10px 10px 0; background: #fff; font-size: 22px; cursor: pointer; }

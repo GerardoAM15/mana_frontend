@@ -5,7 +5,7 @@
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgb(42 18 22 / 58%);
+  background: var(--velo);
   backdrop-filter: blur(3px);
 }
 
@@ -16,8 +16,8 @@
   padding: 30px;
   border: 1px solid var(--color-borde);
   border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 24px 70px rgb(48 13 20 / 28%);
+  background: var(--color-superficie);
+  box-shadow: var(--sombra-alta);
 }
 
 .modal-icono {
@@ -26,23 +26,23 @@
   height: 46px;
   place-items: center;
   margin-bottom: 18px;
-  border: 1px solid #f3c8c3;
+  border: 1px solid #efd3ce;
   border-radius: 50%;
-  color: #a32d22;
-  background: #fff1ef;
+  color: var(--color-peligro);
+  background: var(--color-peligro-suave);
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
-.modal-eyebrow { margin: 0 0 6px; color: #a32d22; font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.modal-eyebrow { margin: 0 0 6px; color: var(--color-peligro); font-size: 12px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; }
 .modal h2 { margin: 0 0 10px; font-size: 22px; }
 .aviso { padding: 10px 12px; border-radius: 8px; color: var(--color-aviso); background: var(--color-aviso-suave); font-size: 14px; }
-label { display: block; margin: 14px 0 5px; font-weight: 700; }
+label { display: block; margin: 14px 0 5px; font-weight: 600; }
 .pie-motivo { display: flex; justify-content: space-between; gap: 8px; margin-top: 4px; }
 .contador { color: var(--color-gris); }
 .modal-acciones { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
 .modal-acciones .btn { min-width: 120px; font-weight: 600; }
-.confirmar { border-color: #a32d22; color: #fff; background: #a32d22; }
+.confirmar { border-color: var(--color-peligro); color: #fff; background: var(--color-peligro); }
 
 @media (max-width: 520px) {
   .modal { padding: 24px 20px; }

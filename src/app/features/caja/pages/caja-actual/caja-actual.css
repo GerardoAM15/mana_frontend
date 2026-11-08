@@ -17,5 +17,5 @@
 .formulario { display: flex; flex-direction: column; gap: 10px; max-width: 420px; }
 .formulario h3 { margin: 0; }
 .formulario .acciones { justify-content: flex-end; margin-top: 8px; }
-label { display: flex; flex-direction: column; gap: 5px; font-weight: 700; }
+label { display: flex; flex-direction: column; gap: 5px; font-weight: 600; }
 .nota { margin: 8px 0 0; color: var(--color-gris); font-size: 13px; }

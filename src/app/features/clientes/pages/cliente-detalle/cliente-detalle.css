@@ -8,7 +8,7 @@
 }
 
 .datos dt { color: var(--color-gris); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
-.datos dd { margin: 2px 0 0; font-weight: 700; }
+.datos dd { margin: 2px 0 0; font-weight: 600; }
 h3 { margin-top: 26px; }
 .contrato { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
 .contrato-cabecera { display: flex; width: 100%; justify-content: space-between; gap: 12px; }

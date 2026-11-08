@@ -24,7 +24,7 @@
     <div class="accesos">
       @for (acceso of accesos(); track acceso.ruta) {
         <a [routerLink]="acceso.ruta" class="card acceso">
-          <span class="icono" aria-hidden="true">{{ acceso.icono }}</span>
+          <span class="icono"><app-icono [nombre]="acceso.icono" [tamano]="24" /></span>
           <strong>{{ acceso.titulo }}</strong>
           <small>{{ acceso.descripcion }}</small>
         </a>

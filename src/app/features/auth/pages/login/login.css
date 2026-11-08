@@ -3,7 +3,10 @@
   min-height: 100vh;
   padding: 16px;
   place-items: center;
-  background: radial-gradient(circle at 20% 15%, #9c3443, var(--color-primario) 60%);
+  background:
+    radial-gradient(circle at 15% 10%, rgb(168 132 76 / 22%), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgb(122 52 70 / 45%), transparent 45%),
+    linear-gradient(140deg, var(--color-primario-oscuro), var(--color-primario) 70%);
 }
 
 .acceso {
@@ -13,11 +16,12 @@
   flex-direction: column;
   gap: 8px;
   border-top: 3px solid var(--color-acento);
+  box-shadow: var(--sombra-alta);
 }
 
 .acceso h2 { margin-bottom: 0; }
 .sub { margin: 0 0 12px; color: var(--color-gris); }
-label { margin-top: 6px; font-weight: 700; }
+label { margin-top: 6px; font-weight: 600; }
 .ancho { width: 100%; margin-top: 14px; padding: 11px; }
 .enlace { align-self: center; margin-top: 6px; color: var(--color-primario); font-size: 14px; }
 .clave { position: relative; }

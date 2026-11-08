@@ -5,13 +5,14 @@ import { forkJoin } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { CajaEstadoService } from '../../core/services/caja-estado.service';
 import { hoy } from '../../core/utils/fechas';
+import { Icono, NombreIcono } from '../../shared/components/icono/icono';
 import { ReporteService } from '../reportes/services/reporte-service';
 
 interface AccesoRapido {
   titulo: string;
   descripcion: string;
   ruta: string;
-  icono: string;
+  icono: NombreIcono;
   permiso: string;
 }
 
@@ -22,15 +23,15 @@ interface Indicadores {
 }
 
 const ACCESOS: AccesoRapido[] = [
-  { titulo: 'Mostrador', descripcion: 'Registrar consumos de pensionistas', ruta: '/mostrador', icono: '🍽', permiso: 'CONSUMO_REGISTRAR' },
-  { titulo: 'Punto de venta', descripcion: 'Vender menús, sueltos y bebidas', ruta: '/pos', icono: '🛒', permiso: 'VENTA_REGISTRAR' },
-  { titulo: 'Caja', descripcion: 'Abrir, revisar y cerrar su caja', ruta: '/caja', icono: '💰', permiso: 'CAJA_OPERAR' },
-  { titulo: 'Nuevo contrato', descripcion: 'Registrar una pensión prepago', ruta: '/contratos/nuevo', icono: '📄', permiso: 'CONTRATO_REGISTRAR' },
+  { titulo: 'Mostrador', descripcion: 'Registrar consumos de pensionistas', ruta: '/mostrador', icono: 'mostrador', permiso: 'CONSUMO_REGISTRAR' },
+  { titulo: 'Punto de venta', descripcion: 'Vender menús, sueltos y bebidas', ruta: '/pos', icono: 'pos', permiso: 'VENTA_REGISTRAR' },
+  { titulo: 'Caja', descripcion: 'Abrir, revisar y cerrar su caja', ruta: '/caja', icono: 'caja', permiso: 'CAJA_OPERAR' },
+  { titulo: 'Nuevo contrato', descripcion: 'Registrar una pensión prepago', ruta: '/contratos/nuevo', icono: 'contratos', permiso: 'CONTRATO_REGISTRAR' },
 ];
 
 @Component({
   selector: 'app-inicio',
-  imports: [CurrencyPipe, DatePipe, RouterLink],
+  imports: [CurrencyPipe, DatePipe, RouterLink, Icono],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })

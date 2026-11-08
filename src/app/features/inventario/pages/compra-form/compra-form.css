@@ -1,8 +1,7 @@
 .formulario { display: flex; flex-direction: column; gap: 14px; }
 .cabecera { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; max-width: 680px; }
-label { display: flex; flex-direction: column; gap: 5px; font-weight: 700; }
+label { display: flex; flex-direction: column; gap: 5px; font-weight: 600; }
 .corto { max-width: 130px; }
-.tabla tfoot th { background: var(--color-primario-oscuro); }
 .agregar { align-self: flex-start; }
 .acciones { display: flex; justify-content: flex-end; gap: 8px; }
 

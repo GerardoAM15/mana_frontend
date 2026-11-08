@@ -7,6 +7,6 @@
   padding: 18px;
 }
 
-label { display: flex; flex-direction: column; gap: 5px; font-size: 14px; font-weight: 700; }
+label { display: flex; flex-direction: column; gap: 5px; font-size: 14px; font-weight: 600; }
 .botones { display: flex; gap: 8px; }
 .dni { color: var(--color-gris); }

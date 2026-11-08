@@ -7,7 +7,7 @@
   gap: 10px;
 }
 
-label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 700; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 600; }
 .quitar { padding: 9px 12px; }
 .completo { grid-column: 1 / -1; }
 .agregar { align-self: flex-start; }
@@ -23,7 +23,7 @@ label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-w
 
 .falta { color: var(--color-peligro); }
 .sobra { color: var(--color-aviso); }
-.exacto { color: var(--color-exito); font-weight: 700; }
+.exacto { color: var(--color-exito); font-weight: 600; }
 
 @media (max-width: 640px) {
   .fila { grid-template-columns: 1fr 1fr; }

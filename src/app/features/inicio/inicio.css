@@ -1,7 +1,7 @@
 .bienvenida { margin-bottom: 24px; }
 .bienvenida p:last-child { margin-bottom: 0; }
 .aviso-caja { margin: 16px 0 0; }
-.aviso-caja a { color: inherit; font-weight: 700; }
+.aviso-caja a { color: inherit; font-weight: 600; }
 
 .tarjetas .tarjeta { color: inherit; text-decoration: none; }
 .tarjetas .tarjeta:hover { border-color: var(--color-acento); }
@@ -23,6 +23,7 @@
 }
 
 .acceso:hover { border-color: var(--color-acento); transform: translateY(-2px); }
-.icono { font-size: 30px; }
+.icono { display: grid; width: 46px; height: 46px; place-items: center; margin-bottom: 6px; border-radius: 12px; color: var(--color-primario); background: var(--color-primario-suave); }
+.acceso:hover .icono { color: var(--color-acento-suave); background: var(--color-primario); }
 .acceso strong { color: var(--color-primario); font-size: 18px; }
 .acceso small { color: var(--color-gris); }
