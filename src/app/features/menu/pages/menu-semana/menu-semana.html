@@ -38,6 +38,12 @@
               @if (feriado(dia); as motivo) {
                 <small class="feriado" [title]="motivo">No se atiende</small>
               }
+              @if (textoMenu(dia)) {
+                <button type="button" class="compartir" (click)="abrirCompartir(dia)"
+                        [attr.aria-label]="'Compartir por WhatsApp el menú del ' + (dia | date: 'dd/MM')">
+                  WhatsApp
+                </button>
+              }
             </th>
           }
         </tr>
@@ -154,5 +160,23 @@
     @if (motivoSinCena(); as motivo) {
       <div class="alerta aviso sin-cena">{{ motivo }}</div>
     }
+  </app-confirmar-dialogo>
+}
+
+@if (compartiendo(); as c) {
+  <app-confirmar-dialogo
+    [titulo]="'Compartir menú · ' + (c.fecha | date: 'EEEE dd/MM')"
+    mensaje="Revise o ajuste el texto. Luego cópielo o ábralo en WhatsApp y elija el grupo o la lista de difusión de pensionistas."
+    textoConfirmar="Abrir WhatsApp"
+    (confirmar)="abrirWhatsApp()"
+    (cancelar)="cerrarCompartir()"
+  >
+    <textarea class="input texto-whatsapp" rows="14" [value]="c.texto"
+              (input)="editarTextoCompartir($any($event.target).value)"
+              aria-label="Texto del menú para WhatsApp"></textarea>
+    <div class="acciones-compartir">
+      <button type="button" class="btn" (click)="copiarTexto()">Copiar texto</button>
+      @if (copiado(); as aviso) { <small class="nota">{{ aviso }}</small> }
+    </div>
   </app-confirmar-dialogo>
 }

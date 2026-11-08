@@ -20,6 +20,7 @@ import { MenuService } from '../../services/menu-service';
 import { PlatoService } from '../../services/plato-service';
 import { ReglaCobroService } from '../../services/regla-cobro-service';
 import { mensajeClonado, serviciosOmitidos } from '../../utils/clonado';
+import { enlaceWhatsApp, mensajeMenuDelDia } from '../../utils/mensaje-whatsapp';
 
 const SERVICIOS = ['D', 'A', 'C'];
 type CodigoServicio = 'D' | 'A' | 'C';
@@ -266,6 +267,50 @@ export class MenuSemana implements OnInit {
     this.editando.set(null);
     this.clonando.set(false);
     this.copiando.set(false);
+  }
+
+  // ---- Compartir el menú del día por WhatsApp (se pega en el grupo o lista de difusión) ----
+  protected readonly compartiendo = signal<{ fecha: string; texto: string } | null>(null);
+  protected readonly copiado = signal<string | null>(null);
+
+  // Texto del menú del día o null si ese día no tiene platos programados.
+  protected textoMenu(fecha: string): string | null {
+    return mensajeMenuDelDia(fecha, this.menus(), c => this.catalogos.nombreServicio(c), c => this.catalogos.nombreCategoria(c));
+  }
+
+  abrirCompartir(fecha: string): void {
+    const texto = this.textoMenu(fecha);
+    if (!texto) return;
+    this.copiado.set(null);
+    this.compartiendo.set({ fecha, texto });
+  }
+
+  // El texto se puede retocar en el cuadro antes de compartirlo.
+  editarTextoCompartir(texto: string): void {
+    this.compartiendo.update(c => (c ? { ...c, texto } : c));
+  }
+
+  async copiarTexto(): Promise<void> {
+    const c = this.compartiendo();
+    if (!c) return;
+    try {
+      await navigator.clipboard.writeText(c.texto);
+      this.copiado.set('Texto copiado. Péguelo en el grupo o la lista de difusión de pensionistas.');
+    } catch {
+      this.copiado.set('No se pudo copiar automáticamente: seleccione el texto y cópielo con Ctrl+C.');
+    }
+  }
+
+  abrirWhatsApp(): void {
+    const c = this.compartiendo();
+    if (!c) return;
+    // wa.me abre WhatsApp (app o web) con el texto escrito; el usuario elige el chat y pulsa enviar.
+    window.open(enlaceWhatsApp(c.texto), '_blank', 'noopener');
+    this.compartiendo.set(null);
+  }
+
+  cerrarCompartir(): void {
+    this.compartiendo.set(null);
   }
 
   // Deshabilita (y desmarca) los servicios que no se atienden en la fecha destino o caen en feriado.

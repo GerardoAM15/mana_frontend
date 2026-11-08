@@ -26,3 +26,10 @@ legend { padding: 0 4px; color: var(--color-primario); font-weight: 600; }
 .check.no-disponible { color: var(--color-gris); cursor: not-allowed; }
 .check small { color: var(--color-gris); }
 .sin-cena { margin: 12px 0 0; }
+
+/* Compartir el menú del día por WhatsApp */
+.compartir { display: block; margin: 6px auto 0; padding: 2px 8px; border: 1px solid var(--color-exito); border-radius: 999px; color: var(--color-exito); background: var(--color-exito-suave); font-size: 11px; font-weight: 600; cursor: pointer; text-transform: none; }
+.compartir:hover { background: var(--color-exito); color: #fff; }
+.compartir:focus-visible { outline: 2px solid var(--color-exito); outline-offset: 2px; }
+.texto-whatsapp { width: 100%; min-height: 220px; font-family: inherit; font-size: 13px; line-height: 1.45; resize: vertical; white-space: pre-wrap; }
+.acciones-compartir { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
