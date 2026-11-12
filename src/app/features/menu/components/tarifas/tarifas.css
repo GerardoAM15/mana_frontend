@@ -1,0 +1,4 @@
+h3 { margin: 0 0 4px; }
+.nota { margin: 0 0 14px; color: var(--color-gris); font-size: 14px; }
+.monto { max-width: 140px; }
+input[type='checkbox'] { width: 18px; height: 18px; }

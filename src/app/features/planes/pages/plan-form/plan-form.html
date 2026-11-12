@@ -1,0 +1,47 @@
+<section class="page">
+  <p class="eyebrow">Tipos de plan</p>
+  <h2>{{ esEdicion() ? 'Editar plan' : 'Nuevo plan' }}</h2>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
+    <label>Nombre <input class="input" maxlength="120" formControlName="nombre" /></label>
+    @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+      <small class="error">El nombre es obligatorio (máximo 120 caracteres).</small>
+    }
+    @if (erroresServidor()['nombre']; as m) { <small class="error">{{ m }}</small> }
+
+    <label>
+      Periodo
+      <select class="input" formControlName="periodo">
+        <option value="SEMANAL">Semanal (inicio + 6 días)</option>
+        <option value="MENSUAL">Mensual (1 mes menos 1 día)</option>
+      </select>
+    </label>
+
+    <fieldset>
+      <legend>Servicios del plan</legend>
+      @for (s of catalogos.servicios(); track s.codigo) {
+        <label class="check">
+          <input type="checkbox" [checked]="servicios().includes(s.codigo)" (change)="alternar(s.codigo, $any($event.target).checked)" />
+          {{ s.nombre }}
+        </label>
+      }
+    </fieldset>
+    @if (intento() && servicios().length === 0) {
+      <small class="error">Elija al menos un servicio.</small>
+    }
+    @if (erroresServidor()['servicios']; as m) { <small class="error">{{ m }}</small> }
+
+    <label class="check"><input type="checkbox" formControlName="activo" /> Activo</label>
+
+    <div class="acciones">
+      <a routerLink="/planes" class="btn">Cancelar</a>
+      <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : (esEdicion() ? 'Actualizar' : 'Registrar') }}
+      </button>
+    </div>
+  </form>
+</section>

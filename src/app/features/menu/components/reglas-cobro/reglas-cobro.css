@@ -1,0 +1,5 @@
+.encabezado { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+h3 { margin: 0 0 4px; }
+.nota { margin: 0; color: var(--color-gris); font-size: 14px; }
+.componente { display: block; font-size: 14px; }
+.acciones { display: flex; gap: 8px; }

@@ -1,0 +1,48 @@
+<section class="page">
+  <p class="eyebrow">Banco de platos</p>
+  <h2>{{ esEdicion() ? 'Editar plato' : 'Nuevo plato' }}</h2>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
+    <label>
+      Nombre
+      <input class="input" maxlength="120" formControlName="nombre" />
+    </label>
+    @if (form.controls.nombre.touched && form.controls.nombre.invalid) {
+      <small class="error">El nombre es obligatorio (máximo 120 caracteres).</small>
+    }
+    @if (erroresServidor()['nombre']; as mensaje) {
+      <small class="error">{{ mensaje }}</small>
+    }
+
+    <label>
+      Categoría
+      <select class="input" formControlName="categoria">
+        <option value="" disabled>Seleccione una categoría</option>
+        @for (c of catalogos.categorias(); track c.codigo) {
+          <option [value]="c.codigo">{{ c.nombre }}</option>
+        }
+      </select>
+    </label>
+    @if (form.controls.categoria.touched && form.controls.categoria.invalid) {
+      <small class="error">Elija una categoría.</small>
+    }
+    @if (erroresServidor()['categoria']; as mensaje) {
+      <small class="error">{{ mensaje }}</small>
+    }
+
+    <label class="check">
+      <input type="checkbox" formControlName="activo" /> Activo
+    </label>
+
+    <div class="acciones">
+      <a routerLink="/menu/platos" class="btn">Cancelar</a>
+      <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : (esEdicion() ? 'Actualizar' : 'Registrar') }}
+      </button>
+    </div>
+  </form>
+</section>

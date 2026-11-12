@@ -1,0 +1,182 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Menú</p>
+      <h2>Programación semanal</h2>
+    </div>
+    <div *siPermiso="'MENU_GESTIONAR'" class="acciones">
+      <button type="button" class="btn" (click)="abrirClonar()">Clonar día</button>
+      <button type="button" class="btn" (click)="abrirCopiar()">Copiar segundos a la cena</button>
+    </div>
+  </header>
+  <app-menu-tabs />
+
+  <div class="semana">
+    <button type="button" class="btn" (click)="cambiarSemana(-1)">‹ Semana anterior</button>
+    <strong>Del {{ dias()[0] | date }} al {{ dias()[6] | date }}</strong>
+    <div class="acciones">
+      <button type="button" class="btn" (click)="irAHoy()">Esta semana</button>
+      <button type="button" class="btn" (click)="cambiarSemana(1)">Semana siguiente ›</button>
+    </div>
+  </div>
+
+  @if (mensaje()) {
+    <div class="alerta" [class.exito]="!mensajeAviso()" [class.aviso]="mensajeAviso()">{{ mensaje() }}</div>
+  }
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <div class="grilla" [class.cargando]="cargando()">
+    <table>
+      <thead>
+        <tr>
+          <th class="servicio"></th>
+          @for (dia of dias(); track dia) {
+            <th [class.hoy]="dia === hoy">
+              {{ dia | date: 'EEE' }}<br /><span>{{ dia | date: 'dd/MM' }}</span>
+              @if (feriado(dia); as motivo) {
+                <small class="feriado" [title]="motivo">No se atiende</small>
+              }
+              @if (textoMenu(dia)) {
+                <button type="button" class="compartir" (click)="abrirCompartir(dia)"
+                        [attr.aria-label]="'Compartir por WhatsApp el menú del ' + (dia | date: 'dd/MM')">
+                  WhatsApp
+                </button>
+              }
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (s of servicios; track s) {
+          <tr>
+            <th class="servicio">{{ catalogos.nombreServicio(s) }}</th>
+            @for (dia of dias(); track dia) {
+              @let m = menu(dia, s);
+              <td
+                [class.gris]="!atiende(dia, s)"
+                [class.editable]="gestiona && atiende(dia, s)"
+                [class.vacia]="atiende(dia, s) && !m?.platos?.length"
+                (click)="abrirEditor(dia, s)"
+              >
+                @if (!atiende(dia, s)) {
+                  <span class="nota">{{ feriado(dia) ? 'Feriado' : 'No se atiende' }}</span>
+                } @else if (m?.platos?.length) {
+                  @for (p of m!.platos; track p.platoId) {
+                    <span class="plato" [title]="catalogos.nombreCategoria(p.categoria)">{{ p.nombre }}</span>
+                  }
+                } @else {
+                  <span class="nota">{{ gestiona ? '+ Programar' : 'Sin menú' }}</span>
+                }
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <p class="nota">Los días grisados no se atiende ese servicio (por ejemplo, la cena del viernes) o son feriados del local.</p>
+</section>
+
+@if (editando(); as celda) {
+  <app-confirmar-dialogo
+    [titulo]="catalogos.nombreServicio(celda.servicio) + ' · ' + (celda.fecha | date: 'EEEE dd/MM/yyyy')"
+    mensaje="Marque los platos del banco que se servirán. Se reemplaza el menú de esa fecha y servicio."
+    textoConfirmar="Guardar menú"
+    textoProcesando="Guardando..."
+    [procesando]="guardando()"
+    (confirmar)="guardarCelda()"
+    (cancelar)="cerrarModales()"
+  >
+    @if (errorModal()) {
+      <div class="alerta">{{ errorModal() }}</div>
+    }
+    <div class="banco">
+      @for (g of gruposBanco(); track g.categoria) {
+        <fieldset>
+          <legend>{{ catalogos.nombreCategoria(g.categoria) }}{{ g.enComposicion ? '' : ' (fuera de la composición)' }}</legend>
+          @for (p of g.platos; track p.id) {
+            <label class="check">
+              <input type="checkbox" [checked]="elegidos().has(p.id)" (change)="alternar(p.id)" />
+              {{ p.nombre }}{{ p.activo ? '' : ' (inactivo)' }}
+            </label>
+          }
+        </fieldset>
+      } @empty {
+        <p class="nota">El banco de platos está vacío.</p>
+      }
+    </div>
+    <p class="nota">{{ elegidos().size }} plato(s) seleccionado(s).</p>
+  </app-confirmar-dialogo>
+}
+
+@if (clonando()) {
+  <app-confirmar-dialogo
+    titulo="Clonar día"
+    mensaje="Copia el menú de una fecha a otra para los servicios elegidos."
+    textoConfirmar="Clonar"
+    textoProcesando="Clonando..."
+    [procesando]="guardando()"
+    (confirmar)="clonar()"
+    (cancelar)="cerrarModales()"
+  >
+    @if (errorModal()) {
+      <div class="alerta">{{ errorModal() }}</div>
+    }
+    <form [formGroup]="formClonar" class="modal-form">
+      <label>Fecha origen <input type="date" class="input" formControlName="fechaOrigen" /></label>
+      <label>Fecha destino <input type="date" class="input" formControlName="fechaDestino" /></label>
+      <div class="servicios-check">
+        @for (s of servicios; track s) {
+          @let motivo = motivoNoAtiende(formClonar.controls.fechaDestino.value, s);
+          <label class="check" [class.no-disponible]="!!motivo" [title]="motivo ?? ''">
+            <input type="checkbox" [formControlName]="s" /> {{ catalogos.nombreServicio(s) }}
+            @if (motivo) { <small>({{ motivo }})</small> }
+          </label>
+        }
+      </div>
+    </form>
+  </app-confirmar-dialogo>
+}
+
+@if (copiando()) {
+  <app-confirmar-dialogo
+    titulo="Copiar segundos del almuerzo a la cena"
+    mensaje="Los segundos del almuerzo de esa fecha se suman al menú de la cena del mismo día."
+    textoConfirmar="Copiar"
+    textoProcesando="Copiando..."
+    [procesando]="guardando()"
+    [confirmarDeshabilitado]="!!motivoSinCena()"
+    (confirmar)="copiarACena()"
+    (cancelar)="cerrarModales()"
+  >
+    @if (errorModal()) {
+      <div class="alerta">{{ errorModal() }}</div>
+    }
+    <form [formGroup]="formCopiar" class="modal-form">
+      <label>Fecha <input type="date" class="input" formControlName="fecha" /></label>
+    </form>
+    @if (motivoSinCena(); as motivo) {
+      <div class="alerta aviso sin-cena">{{ motivo }}</div>
+    }
+  </app-confirmar-dialogo>
+}
+
+@if (compartiendo(); as c) {
+  <app-confirmar-dialogo
+    [titulo]="'Compartir menú · ' + (c.fecha | date: 'EEEE dd/MM')"
+    mensaje="Revise o ajuste el texto. Luego cópielo o ábralo en WhatsApp y elija el grupo o la lista de difusión de pensionistas."
+    textoConfirmar="Abrir WhatsApp"
+    (confirmar)="abrirWhatsApp()"
+    (cancelar)="cerrarCompartir()"
+  >
+    <textarea class="input texto-whatsapp" rows="14" [value]="c.texto"
+              (input)="editarTextoCompartir($any($event.target).value)"
+              aria-label="Texto del menú para WhatsApp"></textarea>
+    <div class="acciones-compartir">
+      <button type="button" class="btn" (click)="copiarTexto()">Copiar texto</button>
+      @if (copiado(); as aviso) { <small class="nota">{{ aviso }}</small> }
+    </div>
+  </app-confirmar-dialogo>
+}

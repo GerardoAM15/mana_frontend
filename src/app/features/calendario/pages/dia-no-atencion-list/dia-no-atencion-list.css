@@ -1,0 +1,15 @@
+.nota { margin: -8px 0 16px; color: var(--color-gris); }
+.formulario { margin-bottom: 18px; padding: 20px; }
+.formulario h3 { margin: 0 0 12px; }
+.campos { display: grid; grid-template-columns: 180px 1fr auto; align-items: start; gap: 12px; }
+label { display: flex; flex-direction: column; gap: 5px; font-size: 14px; font-weight: 600; }
+.botones { display: flex; gap: 8px; padding-top: 22px; }
+.filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; margin-bottom: 14px; }
+.dia { text-transform: capitalize; }
+.acciones { display: flex; gap: 8px; }
+.editando td { background: var(--color-acento-suave); }
+
+@media (max-width: 640px) {
+  .campos { grid-template-columns: 1fr; }
+  .botones { padding-top: 0; }
+}
