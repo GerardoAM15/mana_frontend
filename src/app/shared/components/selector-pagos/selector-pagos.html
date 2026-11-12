@@ -1,0 +1,41 @@
+<div class="pagos">
+  @for (fila of filas.controls; track fila; let i = $index) {
+    <div class="fila" [formGroup]="fila">
+      <label>
+        Método
+        <select class="input" formControlName="metodo">
+          @for (m of catalogos.metodosPago(); track m.codigo) {
+            <option [value]="m.codigo">{{ m.nombre }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        Monto
+        <input type="number" min="0.01" step="0.01" class="input" formControlName="monto" />
+      </label>
+      <label class="referencia">
+        Referencia (opcional)
+        <input class="input" maxlength="160" placeholder="N.º de operación" formControlName="referencia" />
+      </label>
+      <button type="button" class="btn quitar" [disabled]="deshabilitado() || filas.length === 1"
+              (click)="quitar(i)" aria-label="Quitar pago">✕</button>
+      @if (fila.controls.monto.touched && fila.controls.monto.invalid) {
+        <small class="error completo">El monto debe ser mayor a 0.</small>
+      }
+    </div>
+  }
+
+  <button type="button" class="btn agregar" [disabled]="deshabilitado()" (click)="agregar()">+ Agregar otro método</button>
+
+  <div class="resumen">
+    <span>Total <strong>{{ total() | currency }}</strong></span>
+    <span>Pagado <strong>{{ estado().pagado | currency }}</strong></span>
+    @if (diferencia() > 0) {
+      <span class="falta">Falta <strong>{{ diferencia() | currency }}</strong></span>
+    } @else if (diferencia() < 0) {
+      <span class="sobra">Sobra <strong>{{ -diferencia() | currency }}</strong></span>
+    } @else {
+      <span class="exacto">Monto exacto ✓</span>
+    }
+  </div>
+</div>

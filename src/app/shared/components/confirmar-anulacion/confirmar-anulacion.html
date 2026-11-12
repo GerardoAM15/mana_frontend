@@ -1,0 +1,33 @@
+<div class="modal-fondo" (click)="cerrar()" (keydown.escape)="cerrar()">
+  <section class="modal" role="alertdialog" aria-modal="true" aria-labelledby="titulo-anular" (click)="$event.stopPropagation()">
+    <div class="modal-icono" aria-hidden="true">!</div>
+    <p class="modal-eyebrow">Anulación</p>
+    <h2 id="titulo-anular">{{ titulo() }}</h2>
+    @if (aviso()) {
+      <p class="aviso">{{ aviso() }}</p>
+    }
+    <ng-content />
+
+    @if (error()) {
+      <div class="alerta">{{ error() }}</div>
+    }
+
+    <label for="motivo-anulacion">Motivo</label>
+    <textarea id="motivo-anulacion" class="input" rows="3" [maxlength]="max" [formControl]="motivo"></textarea>
+    <div class="pie-motivo">
+      @if (motivo.touched && motivo.invalid) {
+        <small class="error">El motivo debe tener entre {{ min }} y {{ max }} caracteres.</small>
+      } @else {
+        <small></small>
+      }
+      <small class="contador" [class.error]="motivo.value.trim().length < min">{{ motivo.value.length }}/{{ max }}</small>
+    </div>
+
+    <div class="modal-acciones">
+      <button type="button" class="btn" [disabled]="procesando()" (click)="cerrar()">Cancelar</button>
+      <button type="button" class="btn confirmar" [disabled]="procesando()" (click)="enviar()">
+        {{ procesando() ? 'Anulando...' : 'Sí, anular' }}
+      </button>
+    </div>
+  </section>
+</div>

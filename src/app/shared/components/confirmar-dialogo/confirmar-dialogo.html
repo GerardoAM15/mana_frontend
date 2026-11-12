@@ -1,0 +1,25 @@
+<div class="modal-fondo" (click)="cerrar()" (keydown.escape)="cerrar()">
+  <section
+    class="modal"
+    role="alertdialog"
+    aria-modal="true"
+    aria-labelledby="titulo-confirmar"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="modal-icono" [class.peligro]="peligro()" aria-hidden="true">!</div>
+    <p class="modal-eyebrow">Confirmar acción</p>
+    <h2 id="titulo-confirmar">{{ titulo() }}</h2>
+    @if (mensaje()) {
+      <p class="modal-descripcion">{{ mensaje() }}</p>
+    }
+
+    <ng-content />
+
+    <div class="modal-acciones">
+      <button type="button" class="btn" [disabled]="procesando()" (click)="cerrar()">Cancelar</button>
+      <button type="button" class="btn confirmar" [class.peligro]="peligro()" [disabled]="procesando() || confirmarDeshabilitado()" (click)="confirmar.emit()">
+        {{ procesando() ? textoProcesando() : textoConfirmar() }}
+      </button>
+    </div>
+  </section>
+</div>

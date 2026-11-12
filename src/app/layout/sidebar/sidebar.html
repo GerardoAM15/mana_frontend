@@ -1,0 +1,32 @@
+<nav class="sidebar" aria-label="Módulos">
+  <a [routerLink]="inicio.ruta" routerLinkActive="activo" class="enlace">
+    <app-icono [nombre]="inicio.icono" />
+    <span>{{ inicio.etiqueta }}</span>
+  </a>
+
+  @for (grupo of grupos(); track grupo.id) {
+    <section class="grupo">
+      <button
+        type="button"
+        class="cabecera"
+        [class.abierto]="abierto(grupo.id)"
+        [attr.aria-expanded]="abierto(grupo.id)"
+        [attr.aria-controls]="'grupo-' + grupo.id"
+        (click)="alternar(grupo.id)"
+      >
+        <span>{{ grupo.titulo }}</span>
+        <app-icono nombre="flecha" [tamano]="16" class="flecha" />
+      </button>
+      @if (abierto(grupo.id)) {
+        <div class="items" [id]="'grupo-' + grupo.id">
+          @for (item of grupo.items; track item.ruta) {
+            <a [routerLink]="item.ruta" routerLinkActive="activo" class="enlace">
+              <app-icono [nombre]="item.icono" />
+              <span>{{ item.etiqueta }}</span>
+            </a>
+          }
+        </div>
+      }
+    </section>
+  }
+</nav>

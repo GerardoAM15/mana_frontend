@@ -1,0 +1,31 @@
+.pagos { display: flex; flex-direction: column; gap: 10px; }
+
+.fila {
+  display: grid;
+  grid-template-columns: minmax(130px, 1fr) minmax(110px, 140px) minmax(150px, 2fr) auto;
+  align-items: end;
+  gap: 10px;
+}
+
+label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; font-weight: 600; }
+.quitar { padding: 9px 12px; }
+.completo { grid-column: 1 / -1; }
+.agregar { align-self: flex-start; }
+
+.resumen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--color-fondo);
+}
+
+.falta { color: var(--color-peligro); }
+.sobra { color: var(--color-aviso); }
+.exacto { color: var(--color-exito); font-weight: 600; }
+
+@media (max-width: 640px) {
+  .fila { grid-template-columns: 1fr 1fr; }
+  .referencia { grid-column: 1 / 2; }
+}

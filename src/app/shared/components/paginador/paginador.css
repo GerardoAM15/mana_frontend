@@ -1,0 +1,11 @@
+.paginador {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.total { color: var(--color-gris); font-size: 14px; }
+.controles { display: flex; align-items: center; gap: 12px; }
