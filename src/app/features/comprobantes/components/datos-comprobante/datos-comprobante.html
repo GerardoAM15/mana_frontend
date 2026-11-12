@@ -1,0 +1,65 @@
+@if (visible()) {
+  <fieldset class="comprobante" [formGroup]="form">
+    <legend>Comprobante</legend>
+    <div class="tipos" role="radiogroup" aria-label="Tipo de comprobante">
+      @for (t of tipos; track t.valor) {
+        <button type="button" role="radio" class="tipo" [class.activo]="tipo() === t.valor" [attr.aria-checked]="tipo() === t.valor"
+                [disabled]="deshabilitado()" (click)="elegir(t.valor)">
+          {{ t.etiqueta }}
+        </button>
+      }
+    </div>
+
+    @switch (tipo()) {
+      @case ('TICKET') {
+        <p class="nota">Ticket interno, sin comprobante electrónico.</p>
+      }
+      @case ('BOLETA') {
+        <div class="campos">
+          <label>
+            DNI o RUC {{ documentoObligatorio() ? '' : '(opcional)' }}
+            <span class="con-boton">
+              <input class="input" inputmode="numeric" maxlength="11" formControlName="numDoc" placeholder="Sin documento: CLIENTES VARIOS" />
+              <button type="button" class="btn" [disabled]="buscando() || deshabilitado()" (click)="buscar()">{{ buscando() ? '...' : 'Buscar' }}</button>
+            </span>
+          </label>
+          <label>Nombre <input class="input" maxlength="160" formControlName="nombre" /></label>
+        </div>
+        @if (documentoObligatorio()) {
+          <small class="nota">Desde S/ {{ umbral().toFixed(2) }} la boleta debe identificar al cliente.</small>
+        }
+      }
+      @case ('FACTURA') {
+        <div class="campos">
+          <label>
+            RUC
+            <span class="con-boton">
+              <input class="input" inputmode="numeric" maxlength="11" formControlName="numDoc" />
+              <button type="button" class="btn" [disabled]="buscando() || deshabilitado()" (click)="buscar()">{{ buscando() ? '...' : 'Buscar' }}</button>
+            </span>
+          </label>
+          <label>Razón social <input class="input" maxlength="160" formControlName="nombre" /></label>
+          <label class="ancho">Dirección <input class="input" maxlength="250" formControlName="direccion" /></label>
+        </div>
+      }
+    }
+
+    @if (tipo() !== 'TICKET') {
+      <label class="correo">
+        Correo del cliente (opcional)
+        <input class="input" type="email" inputmode="email" maxlength="120" autocomplete="off" formControlName="email"
+               placeholder="Se le enviará el PDF y el XML" />
+      </label>
+    }
+
+    @if (aviso()) {
+      <small class="aviso">{{ aviso() }}</small>
+    }
+    @if (estado().error && (form.dirty || documentoObligatorio())) {
+      <small class="error">{{ estado().error }}</small>
+    }
+    @if (configuracion()?.ambiente === 'BETA' && tipo() !== 'TICKET') {
+      <small class="nota">Ambiente de PRUEBA de SUNAT: el comprobante no tiene valor tributario.</small>
+    }
+  </fieldset>
+}

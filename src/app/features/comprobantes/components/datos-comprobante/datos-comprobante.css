@@ -1,0 +1,12 @@
+.comprobante { display: grid; gap: 10px; margin: 14px 0 0; padding: 14px; border: 1px solid var(--color-borde); border-radius: var(--radio-chico); }
+legend { padding: 0 6px; font-size: 14px; font-weight: 600; }
+.tipos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.tipo { padding: 9px; border: 1px solid var(--color-borde-fuerte); border-radius: var(--radio-chico); color: var(--color-texto); background: var(--color-superficie); font: inherit; font-weight: 500; cursor: pointer; }
+.tipo.activo { border-color: var(--color-primario); color: #fff; background: var(--color-primario); }
+.tipo:disabled { opacity: .55; cursor: not-allowed; }
+.campos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.campos label { display: flex; flex-direction: column; gap: 5px; font-size: 14px; font-weight: 600; }
+.ancho { grid-column: 1 / -1; }
+.correo { display: flex; flex-direction: column; gap: 5px; font-size: 14px; font-weight: 600; }
+.nota { margin: 0; color: var(--color-gris); font-size: 13px; }
+.aviso { color: var(--color-aviso); }

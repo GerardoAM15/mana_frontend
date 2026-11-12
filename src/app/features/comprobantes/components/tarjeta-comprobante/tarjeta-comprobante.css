@@ -1,0 +1,19 @@
+.tarjeta-comprobante { display: grid; gap: 10px; }
+h3 { margin: 0; }
+.cabecera { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.cabecera div { display: flex; flex-direction: column; gap: 2px; }
+.cabecera small { color: var(--color-gris); }
+.numero { font-size: 18px; font-variant-numeric: tabular-nums; }
+.tachado { text-decoration: line-through; color: var(--color-gris); }
+.datos { display: grid; gap: 4px; margin: 0; }
+.datos div { display: flex; gap: 8px; }
+.datos dt { min-width: 80px; color: var(--color-gris); }
+.datos dd { margin: 0; }
+.estado-texto { margin: 0; color: var(--color-aviso); }
+.estado-texto.error { color: var(--color-peligro); }
+.sunat { margin: 0; color: var(--color-gris); font-size: 13px; }
+.beta { margin: 0; color: var(--color-aviso); font-size: 12px; font-weight: 600; letter-spacing: .08em; }
+.acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.nota { color: var(--color-gris); }
+.enviado { color: var(--color-exito); }
+.campo-correo { display: flex; flex-direction: column; gap: 5px; font-size: 14px; font-weight: 600; }

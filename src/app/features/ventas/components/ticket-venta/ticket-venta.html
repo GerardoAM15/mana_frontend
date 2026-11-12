@@ -1,0 +1,85 @@
+@let v = venta();
+<article class="ticket">
+  <header>
+    <strong class="marca">MANÁ</strong>
+    <span>{{ localNombre }}</span>
+    @if (electronico(); as c) {
+      <span>RUC {{ c.rucEmisor }}</span>
+      <strong class="tipo-electronico">{{ c.tipo === 'FACTURA' ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA' }}</strong>
+      <span class="numero">{{ c.numeroCompleto }}</span>
+      <small>Venta {{ v.numero }}</small>
+    } @else {
+      <span class="numero">{{ v.numero }}</span>
+    }
+    <span>{{ v.fecha | date: 'dd/MM/yyyy HH:mm' }} · {{ catalogos.nombreServicio(v.servicio) }}{{ v.paraLlevar ? ' · Para llevar' : '' }}</span>
+    <app-estado-badge [estado]="v.estado" />
+  </header>
+
+  @if (electronico(); as c) {
+    <dl class="receptor">
+      <div><dt>{{ c.receptorTipoDoc === '6' ? 'RUC' : c.receptorTipoDoc === '1' ? 'DNI' : 'Cliente' }}</dt><dd>{{ c.receptorNumDoc || '-' }}</dd></div>
+      <div><dt>{{ c.receptorTipoDoc === '6' ? 'Razón social' : 'Nombre' }}</dt><dd>{{ c.receptorNombre }}</dd></div>
+      @if (c.receptorDireccion) {
+        <div><dt>Dirección</dt><dd>{{ c.receptorDireccion }}</dd></div>
+      }
+    </dl>
+  }
+
+  <table>
+    <tbody>
+      @for (l of v.lineas; track l.id) {
+        <tr>
+          <td>
+            {{ l.cantidad }} × {{ l.descripcion }}
+            @for (p of l.platos; track p.platoId) {
+              <small>{{ p.cantidad > 1 ? p.cantidad + '× ' : '' }}{{ p.nombre }}</small>
+            }
+            <small>{{ l.precioUnitario | currency }}{{ recargo(l) ? ' + ' + (recargo(l) | currency) + ' llevar' : '' }} c/u</small>
+          </td>
+          <td class="num">{{ importe(l) | currency }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <dl class="totales">
+    @if (v.recargoLlevar) {
+      <div><dt>Recargo para llevar</dt><dd>{{ v.recargoLlevar | currency }}</dd></div>
+    }
+    @if (electronico(); as c) {
+      <div><dt>Op. gravadas</dt><dd>{{ c.opGravadas | currency }}</dd></div>
+      <div><dt>IGV ({{ c.porcentajeIgv }}%)</dt><dd>{{ c.igv | currency }}</dd></div>
+    }
+    <div class="total"><dt>Total</dt><dd>{{ v.total | currency }}</dd></div>
+    @for (p of v.pagos; track p.id) {
+      <div><dt>{{ catalogos.nombreMetodo(p.metodo) }}</dt><dd>{{ p.monto | currency }}</dd></div>
+    }
+    @for (d of v.devoluciones; track d.id) {
+      <div class="devolucion"><dt>Devolución {{ catalogos.nombreMetodo(d.metodo) }}</dt><dd>-{{ d.monto | currency }}</dd></div>
+    }
+  </dl>
+
+  @if (v.estado === 'PENDIENTE') {
+    <p class="aviso">Pendiente de pago</p>
+  }
+  @if (v.estado === 'ANULADA') {
+    <p class="aviso">Anulada el {{ v.anuladaEn | date: 'dd/MM/yyyy HH:mm' }}: {{ v.motivoAnulacion }}</p>
+  }
+  @if (electronico(); as c) {
+    <div class="sunat">
+      @if (qr(); as src) {
+        <img [src]="src" width="140" height="140" alt="Código QR del comprobante electrónico" />
+      }
+      <small>Representación impresa de la {{ c.tipo === 'FACTURA' ? 'factura' : 'boleta de venta' }} electrónica.</small>
+      @if (c.hash) {
+        <small class="hash">Hash: {{ c.hash }}</small>
+      } @else {
+        <small>Comprobante en envío a SUNAT.</small>
+      }
+      @if (c.ambiente === 'BETA') {
+        <strong class="prueba">PRUEBA - SIN VALOR TRIBUTARIO</strong>
+      }
+    </div>
+  }
+  <p class="gracias">¡Gracias por su preferencia!</p>
+</article>

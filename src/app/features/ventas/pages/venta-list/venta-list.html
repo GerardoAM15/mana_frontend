@@ -1,0 +1,57 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Venta directa</p>
+      <h2>Ventas</h2>
+    </div>
+    <a routerLink="/pos" class="btn btn-primary">Ir al punto de venta</a>
+  </header>
+
+  <form [formGroup]="filtros" (ngSubmit)="buscar(0)" class="card filtros">
+    <label>Desde <input type="date" class="input" formControlName="desde" /></label>
+    <label>Hasta <input type="date" class="input" formControlName="hasta" /></label>
+    <label>
+      Estado
+      <select class="input" formControlName="estado">
+        <option value="">Todos</option>
+        @for (e of estados; track e) { <option [value]="e">{{ e }}</option> }
+      </select>
+    </label>
+    <label>Caja <input type="number" min="1" class="input" placeholder="N.º de caja" formControlName="cajaId" /></label>
+    <div class="botones">
+      <button type="submit" class="btn btn-primary" [disabled]="cargando()">Buscar</button>
+      <button type="button" class="btn" (click)="limpiar()">Limpiar</button>
+    </div>
+  </form>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando() && !resultado()) {
+    <p>Cargando ventas...</p>
+  } @else if (resultado(); as r) {
+    <table class="tabla">
+      <thead>
+        <tr><th>Número</th><th>Fecha</th><th>Servicio</th><th>Para llevar</th><th>Caja</th><th class="num">Total</th><th>Estado</th><th></th></tr>
+      </thead>
+      <tbody>
+        @for (v of r.contenido; track v.id) {
+          <tr>
+            <td>{{ v.numero }}</td>
+            <td>{{ v.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ catalogos.nombreServicio(v.servicio) }}</td>
+            <td>{{ v.paraLlevar ? 'Sí' : 'No' }}</td>
+            <td>#{{ v.cajaId }}</td>
+            <td class="num">{{ v.total | currency }}</td>
+            <td><app-estado-badge [estado]="v.estado" /></td>
+            <td><a [routerLink]="[v.id]" class="btn">{{ v.estado === 'PENDIENTE' ? 'Cobrar' : 'Ver' }}</a></td>
+          </tr>
+        } @empty {
+          <tr><td colspan="8" class="vacio">No hay registros.</td></tr>
+        }
+      </tbody>
+    </table>
+    <app-paginador [pagina]="r" [deshabilitado]="cargando()" (cambiar)="buscar($event)" />
+  }
+</section>

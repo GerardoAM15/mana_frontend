@@ -1,0 +1,63 @@
+<section class="page">
+  <header class="page-header no-imprimir">
+    <div>
+      <p class="eyebrow">Ventas</p>
+      <h2>Detalle de la venta</h2>
+    </div>
+    <div class="acciones">
+      <a routerLink="/ventas" class="btn">Volver</a>
+      @if (venta()) {
+        <button type="button" class="btn" (click)="imprimir()">Imprimir ticket</button>
+      }
+      @if (puedeAnular()) {
+        <button type="button" class="btn btn-peligro" (click)="anulando.set(true)">Anular</button>
+      }
+    </div>
+  </header>
+
+  @if (mensaje()) {
+    <div class="alerta exito no-imprimir">{{ mensaje() }}</div>
+  }
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (venta(); as v) {
+    <div class="contenido" [class.con-cobro]="pendiente()">
+      <div class="columna">
+        <app-ticket-venta [venta]="v" [comprobante]="comprobante()" />
+        <app-tarjeta-comprobante [ventaId]="v.id" [total]="v.total" [puedeEmitir]="v.estado === 'PAGADA'"
+                                 [version]="versionComprobante()" (cargado)="comprobante.set($event)" />
+      </div>
+
+      @if (pendiente()) {
+        <section class="card cobro no-imprimir">
+          <h3>Cobrar {{ v.total | currency }}</h3>
+          <app-aviso-caja />
+          @if (errorCobro()) {
+            <div class="alerta">{{ errorCobro() }}</div>
+          }
+          <app-selector-pagos [total]="v.total" [deshabilitado]="cobrando()" (cambio)="pagos.set($event)" />
+          <app-datos-comprobante [total]="v.total" [deshabilitado]="cobrando()" (cambio)="solicitudComprobante.set($event)" />
+          <button type="button" class="btn btn-primary grande"
+                  [disabled]="!pagos()?.valido || solicitudComprobante()?.valido === false || cobrando() || !cajaEstado.abierta()" (click)="cobrar()">
+            {{ cobrando() ? 'Cobrando...' : 'Registrar pago' }}
+          </button>
+        </section>
+      }
+    </div>
+  } @else if (!error()) {
+    <p>Cargando venta...</p>
+  }
+</section>
+
+@if (anulando() && venta(); as v) {
+  <app-confirmar-anulacion
+    [titulo]="'¿Anular la venta ' + v.numero + '?'"
+    [aviso]="(v.estado === 'PAGADA' ? 'Se devolverá ' + (v.total | currency) + ' con los mismos métodos de pago. ' : '') + 'Las bebidas vuelven al stock. Solo se puede anular mientras la caja de la venta siga abierta.'"
+    [procesando]="procesando()"
+    [error]="errorAnulacion()"
+    (confirmar)="anular($event)"
+    (cancelar)="cerrarAnulacion()"
+  />
+}
