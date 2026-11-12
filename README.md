@@ -78,19 +78,19 @@ Abra **http://localhost:4200/**. `npm start` ejecuta `ng serve` con `proxy.conf.
 
 | Rol | Correo | Contraseña | Local | Permisos |
 |---|---|---|---|---|
-| DUENO | `dueno@mana.pe` | `Dueno12345` | Local principal | Todos (20) |
+| Dueño | `dueno@mana.pe` | `Dueno12345` | Local principal | Todos (20) |
 | ADMINISTRADOR | `admin@mana.pe` | `Admin12345` | Local principal | Todos menos `LOCAL_GESTIONAR` (19); solo gestiona cajeros |
 | CAJERO | `cajero@mana.pe` | `Cajero12345` | Local principal | Atención diaria, clientes, consultas (7) |
 
-**Jerarquía de roles:** DUENO > ADMINISTRADOR > CAJERO.
+**Jerarquía de roles:** Dueño > Administrador > Cajero (en el código: `DUENO`, `ADMINISTRADOR` y `CAJERO`).
 
-- **DUENO:** tiene todos los permisos y gestiona usuarios de cualquier rol y los locales.
+- **Dueño:** tiene todos los permisos y gestiona usuarios de cualquier rol y los locales.
 - **ADMINISTRADOR:** tiene todo menos los locales y solo puede crear y gestionar **cajeros**.
 - **Usuarios gestionables:** el backend lo indica con `gestionable` en cada usuario. Nadie puede cambiar su propio rol ni desactivar su propia cuenta.
 
-**Cómo se crearon:** al arrancar, el backend crea el primer usuario (`admin@mana.pe`) si no existe. Tras el cambio de jerarquía, ese usuario apareció con rol DUENO en la base de desarrollo; se le devolvió el rol ADMINISTRADOR con `PATCH /api/v1/usuarios/{id}/rol`, usando el token del dueño, para tener un usuario por rol. El dueño y el cajero se crean desde **Usuarios → Nuevo usuario** (o con `POST /api/v1/usuarios`):
+**Cómo se crearon:** al arrancar, el backend crea el primer usuario (`admin@mana.pe`) si no existe. Tras el cambio de jerarquía, ese usuario apareció con rol Dueño en la base de desarrollo; se le devolvió el rol Administrador con `PATCH /api/v1/usuarios/{id}/rol`, usando el token del dueño, para tener un usuario por rol. El dueño y el cajero se crean desde **Usuarios → Nuevo usuario** (o con `POST /api/v1/usuarios`):
 
-| | DUENO | CAJERO |
+| | Dueño | Cajero |
 |---|---|---|
 | DNI | 00000002 | 00000003 |
 | Nombre y apellido | Dueño Prueba | Cajero Prueba |
@@ -100,7 +100,7 @@ Abra **http://localhost:4200/**. `npm start` ejecuta `ng serve` con `proxy.conf.
 
 ✓ = acceso completo · 👁 = solo lectura · — = sin acceso (el menú no la muestra y la ruta lleva a "Acceso denegado").
 
-| Pantalla | Ruta | Permiso | DUENO | ADMINISTRADOR | CAJERO |
+| Pantalla | Ruta | Permiso | Dueño | Administrador | Cajero |
 |---|---|---|:-:|:-:|:-:|
 | Iniciar sesión / Recuperar / Restablecer | `/login`, `/recuperar`, `/restablecer?token=` | Público | ✓ | ✓ | ✓ |
 | Inicio (accesos rápidos) | `/inicio` | Autenticado | ✓ | ✓ | ✓ |
@@ -128,7 +128,7 @@ Abra **http://localhost:4200/**. `npm start` ejecuta `ng serve` con `proxy.conf.
 En **Usuarios**, Editar, Cambiar rol y Desactivar solo aparecen en los usuarios con `gestionable = true`; Cambiar rol y Desactivar nunca se ofrecen sobre la propia cuenta. El administrador solo puede elegir el rol CAJERO, tanto al crear como al cambiar el rol, y crea usuarios en su propio local (no tiene `LOCAL_GESTIONAR` para listar locales).
 
 **Menú lateral por rol:**
-- **DUENO:** los 5 grupos completos.
+- **Dueño:** los 5 grupos completos.
 - **ADMINISTRADOR:** los 5 grupos, sin Locales.
 - **CAJERO:** Atención diaria, Pensiones y Cocina y precios (solo Menú).
 
