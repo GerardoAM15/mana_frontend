@@ -1,0 +1,23 @@
+@for (g of grupos(); track g.categoria) {
+  <div class="grupo">
+    <p class="grupo-titulo" [class.listo]="g.elegida === g.requerida">
+      {{ catalogos.nombreCategoria(g.categoria) }}: elige {{ g.requerida }}{{ g.requerida > 1 ? ' (puede repetir)' : '' }}
+      <span>{{ g.elegida }}/{{ g.requerida }}</span>
+    </p>
+    <div class="opciones">
+      @for (plato of g.platos; track plato.platoId) {
+        <div class="opcion" [class.elegida]="cantidad(plato) > 0">
+          <button type="button" class="plato" (click)="tocar(plato, g)">
+            {{ plato.nombre }}
+            @if (cantidad(plato) > 0) { <span class="cantidad">×{{ cantidad(plato) }}</span> }
+          </button>
+          @if (g.requerida > 1 && cantidad(plato) > 0) {
+            <button type="button" class="menos" (click)="quitar(plato)" [attr.aria-label]="'Quitar ' + plato.nombre">−</button>
+          }
+        </div>
+      } @empty {
+        <p class="nota">No hay platos de esta categoría en el menú de hoy.</p>
+      }
+    </div>
+  </div>
+}

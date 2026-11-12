@@ -1,0 +1,88 @@
+<section class="card">
+  <h3>Precios sueltos</h3>
+  <p class="nota">Precio de un plato suelto según el servicio y la categoría. Sin fila activa, ese plato no se vende suelto (por ejemplo, en la cena).</p>
+
+  @if (mensaje()) {
+    <div class="alerta exito">{{ mensaje() }}</div>
+  }
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando() && filas().length === 0) {
+    <p>Cargando precios...</p>
+  } @else {
+    <table class="tabla">
+      <thead><tr><th>Servicio</th><th>Categoría</th><th>Precio</th><th>Recargo llevar</th><th>Activo</th>@if (gestiona) { <th></th> }</tr></thead>
+      <tbody>
+        @for (fila of filas(); track clave(fila.precio)) {
+          <tr [formGroup]="fila.form">
+            <td>{{ catalogos.nombreServicio(fila.precio.servicio) }}</td>
+            <td>{{ catalogos.nombreCategoria(fila.precio.categoria) }}</td>
+            @if (gestiona) {
+              <td><input type="number" min="0.01" step="0.01" class="input monto" formControlName="precio" /></td>
+              <td><input type="number" min="0" step="0.01" class="input monto" formControlName="recargoLlevar" /></td>
+            } @else {
+              <td>{{ fila.precio.precio | currency }}</td>
+              <td>{{ fila.precio.recargoLlevar | currency }}</td>
+            }
+            <td><input type="checkbox" formControlName="activo" /></td>
+            @if (gestiona) {
+              <td class="acciones">
+                <button type="button" class="btn btn-primary" [disabled]="guardando() === clave(fila.precio)" (click)="guardar(fila)">Guardar</button>
+                @if (fila.precio.activo) {
+                  <button type="button" class="btn btn-peligro" [disabled]="!!guardando()" (click)="porEliminar.set(fila.precio)">Eliminar</button>
+                }
+              </td>
+            }
+          </tr>
+        } @empty {
+          <tr><td colspan="6" class="vacio">No hay registros.</td></tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  @if (gestiona) {
+    <form [formGroup]="nuevo" (ngSubmit)="crear()" class="nuevo">
+      <label>
+        Servicio
+        <select class="input" formControlName="servicio">
+          <option value="" disabled>Seleccione</option>
+          @for (s of catalogos.servicios(); track s.codigo) { <option [value]="s.codigo">{{ s.nombre }}</option> }
+        </select>
+      </label>
+      <label>
+        Categoría
+        <select class="input" formControlName="categoria">
+          <option value="" disabled>Seleccione</option>
+          @for (c of catalogos.categorias(); track c.codigo) { <option [value]="c.codigo">{{ c.nombre }}</option> }
+        </select>
+      </label>
+      <label>Precio <input type="number" min="0.01" step="0.01" class="input" formControlName="precio" /></label>
+      <label>Recargo <input type="number" min="0" step="0.01" class="input" formControlName="recargoLlevar" /></label>
+      <button type="submit" class="btn btn-primary" [disabled]="guardando() === 'nuevo'">
+        {{ guardando() === 'nuevo' ? 'Guardando...' : '+ Agregar' }}
+      </button>
+    </form>
+    @if (nuevo.touched && nuevo.invalid) {
+      <small class="error">Complete servicio, categoría, precio (mayor a 0) y recargo (0 o mayor).</small>
+    }
+    @for (e of erroresServidor() | keyvalue; track e.key) {
+      <small class="error">{{ e.value }}</small>
+    }
+  }
+</section>
+
+@if (porEliminar(); as p) {
+  <app-confirmar-dialogo
+    titulo="¿Eliminar este precio suelto?"
+    [mensaje]="catalogos.nombreCategoria(p.categoria) + ' en ' + catalogos.nombreServicio(p.servicio) + ' quedará inactivo y dejará de venderse suelto. Puede reactivarlo marcando Activo.'"
+    textoConfirmar="Sí, eliminar"
+    textoProcesando="Eliminando..."
+    [peligro]="true"
+    [procesando]="!!guardando()"
+    (confirmar)="confirmarEliminar()"
+    (cancelar)="porEliminar.set(null)"
+  />
+}

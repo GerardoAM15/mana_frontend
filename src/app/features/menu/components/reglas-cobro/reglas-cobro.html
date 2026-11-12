@@ -1,0 +1,58 @@
+<section class="card">
+  <div class="encabezado">
+    <div>
+      <h3>Menús públicos</h3>
+      <p class="nota">Precio del menú completo en el punto de venta, recargo para llevar y composición.</p>
+    </div>
+    <a *siPermiso="'MENU_GESTIONAR'" routerLink="/menu/reglas/nueva" class="btn btn-primary">+ Nuevo menú</a>
+  </div>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <p>Cargando menús...</p>
+  } @else {
+    <table class="tabla">
+      <thead><tr><th>Menú</th><th>Servicio</th><th class="num">Precio</th><th class="num">Recargo llevar</th><th>Composición</th><th>Estado</th><th></th></tr></thead>
+      <tbody>
+        @for (r of reglas(); track r.id) {
+          <tr>
+            <td>{{ r.nombre }}</td>
+            <td>{{ catalogos.nombreServicio(r.servicio) }}</td>
+            <td class="num">{{ r.precioCombo | currency }}</td>
+            <td class="num">{{ r.recargoLlevar | currency }}</td>
+            <td>
+              @for (c of r.componentes; track c.categoria) {
+                <span class="componente">{{ c.cantidad }} {{ catalogos.nombreCategoria(c.categoria) }}</span>
+              }
+            </td>
+            <td><span class="badge" [class.inactivo]="!r.activo">{{ r.activo ? 'Activo' : 'Inactivo' }}</span></td>
+            <td class="acciones">
+              <a *siPermiso="'MENU_GESTIONAR'" [routerLink]="['/menu/reglas', r.id, 'editar']" class="btn">Editar</a>
+              @if (r.activo) {
+                <button *siPermiso="'MENU_GESTIONAR'" type="button" class="btn btn-peligro" (click)="porEliminar.set(r)">Eliminar</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="7" class="vacio">No hay registros.</td></tr>
+        }
+      </tbody>
+    </table>
+  }
+</section>
+
+@if (porEliminar(); as r) {
+  <app-confirmar-dialogo
+    titulo="¿Eliminar este menú público?"
+    [mensaje]="r.nombre + ' (' + catalogos.nombreServicio(r.servicio) + ') quedará inactivo y dejará de venderse en el punto de venta.'"
+    textoConfirmar="Sí, eliminar"
+    textoProcesando="Eliminando..."
+    [peligro]="true"
+    [procesando]="eliminando()"
+    (confirmar)="confirmarEliminar()"
+    (cancelar)="porEliminar.set(null)"
+  />
+}

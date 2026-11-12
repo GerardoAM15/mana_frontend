@@ -1,0 +1,42 @@
+<section class="card">
+  <h3>Tarifas de pensionista</h3>
+  <p class="nota">Precio por ración. Al cambiarlo, los contratos ya registrados conservan su precio pactado.</p>
+
+  @if (mensaje()) {
+    <div class="alerta exito">{{ mensaje() }}</div>
+  }
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <table class="tabla">
+    <thead><tr><th>Servicio</th><th>Precio por ración</th><th>Activo</th>@if (gestiona) { <th></th> }</tr></thead>
+    <tbody>
+      @for (fila of filas(); track fila.servicio) {
+        <tr [formGroup]="fila.form">
+          <td>{{ catalogos.nombreServicio(fila.servicio) }}</td>
+          <td>
+            @if (gestiona) {
+              <input type="number" min="0.01" step="0.01" class="input monto" formControlName="precio" />
+              @if (fila.form.controls.precio.touched && fila.form.controls.precio.invalid) {
+                <small class="error">Mayor a 0.</small>
+              }
+            } @else {
+              {{ fila.tarifa ? (fila.tarifa.precio | currency) : 'Sin tarifa' }}
+            }
+          </td>
+          <td><input type="checkbox" formControlName="activo" /></td>
+          @if (gestiona) {
+            <td>
+              <button type="button" class="btn btn-primary" [disabled]="guardando() === fila.servicio" (click)="guardar(fila)">
+                {{ guardando() === fila.servicio ? 'Guardando...' : (fila.tarifa ? 'Guardar' : 'Crear') }}
+              </button>
+            </td>
+          }
+        </tr>
+      } @empty {
+        <tr><td colspan="4" class="vacio">No hay registros.</td></tr>
+      }
+    </tbody>
+  </table>
+</section>
