@@ -1,0 +1,19 @@
+.contado { max-width: 140px; text-align: right; }
+.diferencia { font-weight: 600; }
+.cuadra { color: var(--color-exito); }
+.descuadre { color: var(--color-peligro); }
+
+.observacion { display: flex; flex-direction: column; gap: 5px; margin-top: 18px; font-weight: 600; }
+.acciones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.enlace { margin-left: 8px; color: inherit; font-weight: 600; }
+
+.resumen-cierre {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  background: var(--color-fondo);
+}
+
+.resumen-cierre span { display: flex; justify-content: space-between; }

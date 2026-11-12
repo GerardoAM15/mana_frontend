@@ -1,0 +1,71 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Caja · supervisión</p>
+      <h2>Historial de cajas</h2>
+    </div>
+    <div class="acciones no-imprimir">
+      <a routerLink="/caja" class="btn">Mi caja</a>
+      <button type="button" class="btn" (click)="imprimir()">Imprimir</button>
+    </div>
+  </header>
+
+  <form [formGroup]="filtros" (ngSubmit)="buscar(0)" class="card filtros no-imprimir">
+    <label>Desde <input type="date" class="input" formControlName="desde" /></label>
+    <label>Hasta <input type="date" class="input" formControlName="hasta" /></label>
+    <label>
+      Usuario
+      @if (puedeListarUsuarios) {
+        <select class="input" formControlName="usuarioId">
+          <option [ngValue]="null">Todos</option>
+          @for (u of usuarios(); track u.id) {
+            <option [ngValue]="u.id">{{ u.nombre }} {{ u.apellido }}</option>
+          }
+        </select>
+      } @else {
+        <input type="number" min="1" class="input" placeholder="Id de usuario" formControlName="usuarioId" />
+      }
+    </label>
+    <div class="botones">
+      <button type="submit" class="btn btn-primary" [disabled]="cargando()">Buscar</button>
+      <button type="button" class="btn" (click)="limpiar()">Limpiar</button>
+    </div>
+  </form>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando() && !resultado()) {
+    <p>Cargando cajas...</p>
+  } @else if (resultado(); as r) {
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Caja</th><th>Usuario</th><th>Apertura</th><th>Cierre</th><th>Estado</th>
+          <th class="num">Inicial</th><th class="num">Esperado</th><th class="num">Contado</th><th class="num">Diferencia</th>
+          <th class="no-imprimir"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (caja of r.contenido; track caja.id) {
+          <tr>
+            <td>#{{ caja.id }}</td>
+            <td>{{ nombreUsuario(caja.usuarioId) }}</td>
+            <td>{{ caja.apertura | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ caja.cierre ? (caja.cierre | date: 'dd/MM/yyyy HH:mm') : '-' }}</td>
+            <td><app-estado-badge [estado]="caja.cierre ? 'CERRADA' : 'ABIERTA'" /></td>
+            <td class="num">{{ caja.montoInicial | currency }}</td>
+            <td class="num">{{ caja.montoEsperado !== null ? (caja.montoEsperado | currency) : '-' }}</td>
+            <td class="num">{{ caja.montoContado !== null ? (caja.montoContado | currency) : '-' }}</td>
+            <td class="num" [class.descuadre]="!!caja.diferencia">{{ caja.diferencia !== null ? (caja.diferencia | currency) : '-' }}</td>
+            <td class="no-imprimir"><a [routerLink]="['/caja', caja.id]" class="btn">Ver arqueo</a></td>
+          </tr>
+        } @empty {
+          <tr><td colspan="10" class="vacio">No hay registros.</td></tr>
+        }
+      </tbody>
+    </table>
+    <app-paginador [pagina]="r" [deshabilitado]="cargando()" (cambiar)="buscar($event)" />
+  }
+</section>

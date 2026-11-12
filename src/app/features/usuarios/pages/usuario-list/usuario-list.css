@@ -1,0 +1,5 @@
+.buscador { max-width: 380px; margin-bottom: 18px; }
+.acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.rol { padding: 3px 10px; border-radius: 999px; color: var(--color-primario); background: var(--color-primario-suave); font-size: 13px; font-weight: 600; }
+.campo-rol { display: flex; flex-direction: column; gap: 5px; font-weight: 600; }
+.nota { align-self: center; color: var(--color-gris); }

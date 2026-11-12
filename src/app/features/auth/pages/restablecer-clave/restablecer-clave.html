@@ -1,0 +1,40 @@
+<main class="fondo">
+  <section class="card acceso">
+    <p class="eyebrow">MANÁ</p>
+    <h2>Restablecer contraseña</h2>
+
+    @if (mensaje()) {
+      <div class="alerta exito">{{ mensaje() }}</div>
+      <a routerLink="/login" class="btn btn-primary ancho">Iniciar sesión</a>
+    } @else if (!token()) {
+      <div class="alerta">El enlace no es válido. Solicite uno nuevo.</div>
+      <a routerLink="/recuperar" class="btn btn-primary ancho">Solicitar enlace</a>
+    } @else {
+      @if (error()) {
+        <div class="alerta">{{ error() }}</div>
+        <a routerLink="/recuperar" class="enlace">Solicitar un enlace nuevo</a>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="guardar()" class="formulario">
+        <label for="nuevaClave">Nueva contraseña</label>
+        <input id="nuevaClave" type="password" class="input" formControlName="nuevaClave" autocomplete="new-password" />
+        @if (form.controls.nuevaClave.touched && form.controls.nuevaClave.invalid) {
+          <small class="error">Debe tener entre 8 y 72 caracteres.</small>
+        }
+        @if (erroresServidor()['nuevaClave']; as mensajeCampo) {
+          <small class="error">{{ mensajeCampo }}</small>
+        }
+
+        <label for="confirmacion">Repita la contraseña</label>
+        <input id="confirmacion" type="password" class="input" formControlName="confirmacion" autocomplete="new-password" />
+        @if (form.controls.confirmacion.touched && form.hasError('distintas')) {
+          <small class="error">Las contraseñas no coinciden.</small>
+        }
+
+        <button type="submit" class="btn btn-primary ancho" [disabled]="enviando()">
+          {{ enviando() ? 'Guardando...' : 'Cambiar contraseña' }}
+        </button>
+      </form>
+    }
+  </section>
+</main>
