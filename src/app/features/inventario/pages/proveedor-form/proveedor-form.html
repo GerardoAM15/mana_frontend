@@ -1,0 +1,54 @@
+<section class="page">
+  <p class="eyebrow">Inventario · proveedores</p>
+  <h2>{{ esEdicion() ? 'Editar proveedor' : 'Nuevo proveedor' }}</h2>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
+    <label>RUC (opcional, para autocompletar desde SUNAT)
+      <span class="con-boton">
+        <input class="input" inputmode="numeric" maxlength="11" [formControl]="ruc" (keydown.enter)="$event.preventDefault(); buscarRuc()" />
+        <button type="button" class="btn" (click)="buscarRuc()" [disabled]="buscandoRuc()">
+          {{ buscandoRuc() ? 'Buscando...' : 'Buscar' }}
+        </button>
+      </span>
+    </label>
+    @if (ruc.touched && ruc.invalid) {
+      <small class="error">El RUC tiene 11 dígitos y empieza con 10, 15, 17 o 20.</small>
+    }
+    @if (avisoRuc(); as aviso) { <small class="nota-consulta">{{ aviso }}</small> }
+
+    <label>Razón social <input class="input" maxlength="160" formControlName="razonSocial" /></label>
+    @if (form.controls.razonSocial.touched && form.controls.razonSocial.invalid) {
+      <small class="error">La razón social es obligatoria (máximo 160 caracteres).</small>
+    }
+    @if (erroresServidor()['razonSocial']; as m) { <small class="error">{{ m }}</small> }
+
+    <label>Teléfono (opcional) <input class="input" maxlength="20" inputmode="tel" formControlName="telefono" /></label>
+    @if (erroresServidor()['telefono']; as m) { <small class="error">{{ m }}</small> }
+
+    <fieldset>
+      <legend>Bebidas que vende</legend>
+      @for (b of bebidas(); track b.id) {
+        <label class="check">
+          <input type="checkbox" [checked]="elegidas().includes(b.id)" (change)="alternar(b.id, $any($event.target).checked)" />
+          {{ b.nombre }}{{ b.activo ? '' : ' (inactiva)' }}
+        </label>
+      } @empty {
+        <p class="nota">No hay bebidas registradas. Créelas primero en la pestaña Bebidas.</p>
+      }
+    </fieldset>
+    @if (erroresServidor()['bebidaIds']; as m) { <small class="error">{{ m }}</small> }
+
+    <label class="check"><input type="checkbox" formControlName="activo" /> Activo</label>
+
+    <div class="acciones">
+      <a routerLink="/inventario/proveedores" class="btn">Cancelar</a>
+      <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : (esEdicion() ? 'Actualizar' : 'Registrar') }}
+      </button>
+    </div>
+  </form>
+</section>

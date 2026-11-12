@@ -1,0 +1,13 @@
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 18px; border-bottom: 2px solid var(--color-borde); }
+
+a {
+  margin-bottom: -2px;
+  padding: 10px 16px;
+  border-bottom: 3px solid transparent;
+  color: var(--color-gris);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+a:hover { color: var(--color-primario); }
+a.activa { border-bottom-color: var(--color-acento); color: var(--color-primario); }

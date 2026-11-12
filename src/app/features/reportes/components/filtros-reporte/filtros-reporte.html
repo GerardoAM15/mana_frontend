@@ -1,0 +1,29 @@
+<form [formGroup]="form" (ngSubmit)="enviar()" class="card filtros no-imprimir">
+  <label>Desde <input type="date" class="input" formControlName="desde" /></label>
+  <label>Hasta <input type="date" class="input" formControlName="hasta" /></label>
+  @if (conServicio()) {
+    <label>
+      Servicio
+      <select class="input" formControlName="servicio">
+        <option value="">Todos</option>
+        @for (s of catalogos.servicios(); track s.codigo) { <option [value]="s.codigo">{{ s.nombre }}</option> }
+      </select>
+    </label>
+  }
+  @if (conAgrupacion()) {
+    <label>
+      Agrupar por
+      <select class="input" formControlName="agrupacion">
+        <option value="DIA">Día</option>
+        <option value="MES">Mes</option>
+      </select>
+    </label>
+  }
+  <div class="botones">
+    <button type="submit" class="btn btn-primary" [disabled]="cargando()">{{ cargando() ? 'Consultando...' : 'Consultar' }}</button>
+    <button type="button" class="btn" (click)="imprimir()">Imprimir</button>
+  </div>
+  @if (rangoInvalido()) {
+    <small class="error completo">La fecha "desde" no puede ser posterior a "hasta".</small>
+  }
+</form>

@@ -1,0 +1,47 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Reportes</p>
+      <h2>Ingresos mensuales</h2>
+      @if (rango(); as r) { <p class="rango solo-impresion">Del {{ etiqueta(r.desde) }} al {{ etiqueta(r.hasta) }}</p> }
+    </div>
+    <a routerLink="/reportes" class="btn no-imprimir">Todos los reportes</a>
+  </header>
+
+  <app-filtros-reporte [cargando]="cargando()" (buscar)="buscar($event)" />
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <div class="tarjetas">
+    <div class="tarjeta"><span>Pensiones (contratos netos)</span><strong>{{ totales().contratos | currency }}</strong></div>
+    <div class="tarjeta acento"><span>Ventas directas netas</span><strong>{{ totales().ventas | currency }}</strong></div>
+    <div class="tarjeta exito"><span>Total del periodo</span><strong>{{ totales().total | currency }}</strong></div>
+  </div>
+
+  <div class="card seccion-reporte">
+    <h3>Comparativo por mes</h3>
+    <app-barras [series]="series" [filas]="filas()" [moneda]="true" />
+  </div>
+
+  <table class="tabla">
+    <thead><tr><th>Mes</th><th class="num">Pensiones</th><th class="num">Ventas</th><th class="num">Total</th></tr></thead>
+    <tbody>
+      @for (d of datos(); track d.periodo) {
+        <tr>
+          <td>{{ etiqueta(d.periodo) }}</td>
+          <td class="num">{{ d.contratos | currency }}</td>
+          <td class="num">{{ d.ventas | currency }}</td>
+          <td class="num"><strong>{{ d.total | currency }}</strong></td>
+        </tr>
+      } @empty {
+        <tr><td colspan="4" class="vacio">{{ cargando() ? 'Consultando...' : 'No hay registros.' }}</td></tr>
+      }
+    </tbody>
+    @if (datos().length) {
+      <tfoot><tr><th>Total</th><th class="num">{{ totales().contratos | currency }}</th><th class="num">{{ totales().ventas | currency }}</th><th class="num">{{ totales().total | currency }}</th></tr></tfoot>
+    }
+  </table>
+  <p class="nota">Pensiones = cobros de contratos − devoluciones + recargos para llevar de consumos. Ventas = ventas pagadas − devoluciones.</p>
+</section>

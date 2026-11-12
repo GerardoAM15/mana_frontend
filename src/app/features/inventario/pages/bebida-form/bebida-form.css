@@ -1,0 +1,5 @@
+.formulario { display: flex; flex-direction: column; gap: 10px; max-width: 520px; }
+label { display: flex; flex-direction: column; gap: 5px; font-weight: 600; }
+.check { flex-direction: row; align-items: center; gap: 8px; }
+.nota { color: var(--color-gris); }
+.acciones { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }

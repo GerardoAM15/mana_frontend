@@ -1,0 +1,42 @@
+<section class="page">
+  <p class="eyebrow">Gastos diarios</p>
+  <h2>{{ esEdicion() ? 'Editar gasto' : 'Nuevo gasto' }}</h2>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
+    <div class="dos">
+      <label>
+        Fecha
+        <input type="date" class="input" formControlName="fecha" />
+        @if (erroresServidor()['fecha']; as m) { <small class="error">{{ m }}</small> }
+      </label>
+      <label>
+        Monto
+        <input type="number" min="0.01" step="0.01" class="input" formControlName="monto" />
+        @if (form.controls.monto.touched && form.controls.monto.invalid) { <small class="error">Debe ser mayor a 0.</small> }
+        @if (erroresServidor()['monto']; as m) { <small class="error">{{ m }}</small> }
+      </label>
+    </div>
+
+    <label>
+      Descripción
+      <textarea class="input" rows="3" maxlength="500" placeholder="Ej.: Compra de gas" formControlName="descripcion"></textarea>
+      @if (form.controls.descripcion.touched && form.controls.descripcion.invalid) {
+        <small class="error">La descripción es obligatoria (máximo 500 caracteres).</small>
+      }
+      @if (erroresServidor()['descripcion']; as m) { <small class="error">{{ m }}</small> }
+    </label>
+
+    <label class="check"><input type="checkbox" formControlName="activo" /> Activo</label>
+
+    <div class="acciones">
+      <a routerLink="/gastos" class="btn">Cancelar</a>
+      <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : (esEdicion() ? 'Actualizar' : 'Registrar') }}
+      </button>
+    </div>
+  </form>
+</section>

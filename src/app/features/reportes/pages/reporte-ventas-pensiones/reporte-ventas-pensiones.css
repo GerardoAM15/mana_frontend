@@ -1,0 +1,8 @@
+.participacion { display: flex; height: 28px; overflow: hidden; border-radius: 6px; background: var(--color-borde); }
+.pensiones { background: var(--color-primario); }
+.ventas { background: var(--color-acento); }
+.rango { margin: 0; }
+
+@media print {
+  .participacion div { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}

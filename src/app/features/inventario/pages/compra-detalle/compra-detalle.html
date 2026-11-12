@@ -1,0 +1,45 @@
+<section class="page">
+  <header class="page-header no-imprimir">
+    <div>
+      <p class="eyebrow">Inventario · compras</p>
+      <h2>Detalle de la compra</h2>
+    </div>
+    <div class="acciones">
+      <a routerLink="/inventario/compras" class="btn">Volver</a>
+      <a routerLink="/inventario/stock" class="btn">Ver stock</a>
+      <button type="button" class="btn" [disabled]="!compra()" (click)="imprimir()">Imprimir</button>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (compra(); as c) {
+    <div class="card">
+      <p class="eyebrow">MANÁ · Compra #{{ c.id }}</p>
+      <dl class="datos">
+        <div><dt>Proveedor</dt><dd>{{ c.proveedorNombre }}</dd></div>
+        <div><dt>Fecha</dt><dd>{{ c.fecha | date }}</dd></div>
+        <div><dt>Total</dt><dd>{{ c.total | currency }}</dd></div>
+      </dl>
+      <table class="tabla">
+        <thead><tr><th>Bebida</th><th class="num">Presentaciones</th><th class="num">Unid. por presentación</th><th class="num">Unidades al stock</th><th class="num">Costo total</th></tr></thead>
+        <tbody>
+          @for (d of c.detalles; track d.id) {
+            <tr>
+              <td>{{ d.bebidaNombre }}</td>
+              <td class="num">{{ d.presentaciones }}</td>
+              <td class="num">{{ d.unidadesPorPresentacion }}</td>
+              <td class="num"><strong>{{ d.unidades }}</strong></td>
+              <td class="num">{{ d.costoTotal | currency }}</td>
+            </tr>
+          }
+        </tbody>
+        <tfoot><tr><th colspan="4">Total</th><th class="num">{{ c.total | currency }}</th></tr></tfoot>
+      </table>
+    </div>
+  } @else if (!error()) {
+    <p>Cargando compra...</p>
+  }
+</section>

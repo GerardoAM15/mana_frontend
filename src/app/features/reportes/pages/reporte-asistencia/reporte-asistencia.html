@@ -1,0 +1,51 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Reportes</p>
+      <h2>Asistencia diaria</h2>
+      @if (rango(); as r) { <p class="rango solo-impresion">Del {{ etiqueta(r.desde) }} al {{ etiqueta(r.hasta) }}</p> }
+    </div>
+    <a routerLink="/reportes" class="btn no-imprimir">Todos los reportes</a>
+  </header>
+
+  <app-filtros-reporte [cargando]="cargando()" (buscar)="buscar($event)" />
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <div class="tarjetas">
+    <div class="tarjeta"><span>Consumos del periodo</span><strong>{{ totales().total }}</strong></div>
+    @for (s of servicios; track s) {
+      <div class="tarjeta acento"><span>{{ catalogos.nombreServicio(s) }}</span><strong>{{ totales().porServicio[s] ?? 0 }}</strong></div>
+    }
+    <div class="tarjeta exito"><span>Promedio por día con consumo</span><strong>{{ totales().promedio.toFixed(1) }}</strong></div>
+  </div>
+
+  <div class="card seccion-reporte">
+    <h3>Consumos por día y servicio</h3>
+    <app-barras [series]="series()" [filas]="filas()" />
+  </div>
+
+  <table class="tabla">
+    <thead>
+      <tr><th>Fecha</th>@for (s of servicios; track s) { <th class="num">{{ catalogos.nombreServicio(s) }}</th> }<th class="num">Total</th></tr>
+    </thead>
+    <tbody>
+      @for (d of dias(); track d.fecha) {
+        <tr>
+          <td>{{ etiqueta(d.fecha) }}</td>
+          @for (s of servicios; track s) { <td class="num">{{ d.porServicio[s] ?? 0 }}</td> }
+          <td class="num"><strong>{{ d.total }}</strong></td>
+        </tr>
+      } @empty {
+        <tr><td [attr.colspan]="servicios.length + 2" class="vacio">{{ cargando() ? 'Consultando...' : 'No hay registros.' }}</td></tr>
+      }
+    </tbody>
+    @if (dias().length) {
+      <tfoot>
+        <tr><th>Total</th>@for (s of servicios; track s) { <th class="num">{{ totales().porServicio[s] ?? 0 }}</th> }<th class="num">{{ totales().total }}</th></tr>
+      </tfoot>
+    }
+  </table>
+</section>
