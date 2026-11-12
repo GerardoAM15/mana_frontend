@@ -1,0 +1,9 @@
+@let p = pagina();
+<nav class="paginador no-imprimir" aria-label="Paginación">
+  <span class="total">{{ p.totalElementos }} registro(s)</span>
+  <div class="controles">
+    <button type="button" class="btn" [disabled]="deshabilitado() || p.pagina === 0" (click)="anterior()">‹ Anterior</button>
+    <span>Página {{ p.totalPaginas === 0 ? 0 : p.pagina + 1 }} de {{ p.totalPaginas }}</span>
+    <button type="button" class="btn" [disabled]="deshabilitado() || p.ultima" (click)="siguiente()">Siguiente ›</button>
+  </div>
+</nav>
