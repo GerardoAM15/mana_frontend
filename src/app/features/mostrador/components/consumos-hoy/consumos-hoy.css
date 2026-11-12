@@ -1,0 +1,6 @@
+:host { display: block; margin-top: 28px; }
+.encabezado { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.encabezado h3 { margin: 0; }
+.plato { display: block; font-size: 14px; }
+.anulado td { color: var(--color-gris); text-decoration: line-through; }
+.anulado td:last-child { text-decoration: none; }

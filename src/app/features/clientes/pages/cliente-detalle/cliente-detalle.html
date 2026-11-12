@@ -1,0 +1,66 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Clientes</p>
+      <h2>Detalle del cliente</h2>
+    </div>
+    <div class="acciones">
+      <a routerLink="/clientes" class="btn">Volver</a>
+      @if (cliente(); as c) {
+        <a *siPermiso="'CLIENTE_ESCRIBIR'" [routerLink]="['/clientes', c.id, 'editar']" class="btn">Editar</a>
+        @if (c.activo) {
+          <a *siPermiso="'CONTRATO_REGISTRAR'" routerLink="/contratos/nuevo" [queryParams]="{ clienteId: c.id }" class="btn btn-primary">Nuevo contrato</a>
+        }
+      }
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cliente(); as c) {
+    <div class="card">
+      <dl class="datos">
+        <div><dt>DNI</dt><dd>{{ c.dni }}</dd></div>
+        <div><dt>Nombre</dt><dd>{{ c.nombre }} {{ c.apellido }}</dd></div>
+        <div><dt>Teléfono</dt><dd>{{ c.telefono || '-' }}</dd></div>
+        <div><dt>Estado</dt><dd><span class="badge" [class.inactivo]="!c.activo">{{ c.activo ? 'Activo' : 'Inactivo' }}</span></dd></div>
+      </dl>
+    </div>
+
+    <ng-container *siPermiso="'CONTRATO_LEER'">
+      <h3>Contrato vigente</h3>
+      @if (errorContrato()) {
+        <div class="alerta">{{ errorContrato() }}</div>
+      }
+      @if (cargandoContrato()) {
+        <p>Consultando contrato...</p>
+      } @else if (contrato(); as k) {
+        <div class="card contrato">
+          <div class="contrato-cabecera">
+            <div>
+              <strong>{{ k.numero }}</strong> · {{ k.planNombre }}
+              <p class="fechas">Del {{ k.fechaInicio | date }} al {{ k.fechaFin | date }} · {{ k.montoTotal | currency }}</p>
+            </div>
+            <app-estado-badge [estado]="k.estado" />
+          </div>
+          <div class="saldos">
+            @for (d of k.detalles; track d.id) {
+              <div class="saldo">
+                <span>{{ catalogos.nombreServicio(d.servicio) }}</span>
+                <strong>{{ d.saldoRaciones }}</strong>
+                <small>de {{ d.racionesContratadas }} raciones</small>
+              </div>
+            }
+          </div>
+          <a [routerLink]="['/contratos', k.id]" class="btn">Ver contrato</a>
+        </div>
+      } @else if (!errorContrato()) {
+        <p class="vacio card">El cliente no tiene un contrato vigente.</p>
+      }
+    </ng-container>
+  } @else if (!error()) {
+    <p>Cargando cliente...</p>
+  }
+</section>

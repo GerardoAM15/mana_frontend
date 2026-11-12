@@ -1,0 +1,59 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Pensiones</p>
+      <h2>Contratos</h2>
+    </div>
+    <a *siPermiso="'CONTRATO_REGISTRAR'" routerLink="nuevo" class="btn btn-primary">+ Nuevo contrato</a>
+  </header>
+
+  <form [formGroup]="filtros" (ngSubmit)="buscar(0)" class="card filtros">
+    <label>DNI <input class="input" inputmode="numeric" maxlength="8" formControlName="dni" /></label>
+    <label>
+      Estado
+      <select class="input" formControlName="estado">
+        <option value="">Todos</option>
+        @for (estado of estados; track estado) {
+          <option [value]="estado">{{ estado }}</option>
+        }
+      </select>
+    </label>
+    <label>Desde <input type="date" class="input" formControlName="desde" /></label>
+    <label>Hasta <input type="date" class="input" formControlName="hasta" /></label>
+    <div class="botones">
+      <button type="submit" class="btn btn-primary" [disabled]="cargando()">Buscar</button>
+      <button type="button" class="btn" (click)="limpiar()">Limpiar</button>
+    </div>
+  </form>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando() && !resultado()) {
+    <p>Cargando contratos...</p>
+  } @else if (resultado(); as r) {
+    <table class="tabla">
+      <thead>
+        <tr><th>Número</th><th>Cliente</th><th>Plan</th><th>Inicio</th><th>Fin</th><th class="num">Monto</th><th>Estado</th><th></th></tr>
+      </thead>
+      <tbody>
+        @for (c of r.contenido; track c.id) {
+          <tr>
+            <td>{{ c.numero }}</td>
+            <td>{{ c.clienteNombre }}<br /><small class="dni">DNI {{ c.dni }}</small></td>
+            <td>{{ c.planNombre }}</td>
+            <td>{{ c.fechaInicio | date }}</td>
+            <td>{{ c.fechaFin | date }}</td>
+            <td class="num">{{ c.montoTotal | currency }}</td>
+            <td><app-estado-badge [estado]="c.estado" /></td>
+            <td><a [routerLink]="[c.id]" class="btn">Ver</a></td>
+          </tr>
+        } @empty {
+          <tr><td colspan="8" class="vacio">No hay registros.</td></tr>
+        }
+      </tbody>
+    </table>
+    <app-paginador [pagina]="r" [deshabilitado]="cargando()" (cambiar)="buscar($event)" />
+  }
+</section>

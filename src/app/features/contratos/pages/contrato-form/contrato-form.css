@@ -1,0 +1,40 @@
+.secciones { display: flex; flex-direction: column; gap: 16px; }
+.seccion { padding: 22px; }
+.seccion h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; }
+
+.paso {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--color-primario);
+  font-size: 14px;
+}
+
+label { display: flex; flex-direction: column; gap: 5px; font-size: 14px; font-weight: 600; }
+.buscar { display: flex; align-items: flex-end; gap: 10px; max-width: 420px; }
+.buscar label { flex: 1; }
+.no-encontrado { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 12px 0 0; }
+.cliente { display: flex; align-items: center; gap: 14px; }
+.cliente div { display: flex; flex-direction: column; }
+.cliente small { color: var(--color-gris); }
+.plan { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.servicios { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+
+.servicio {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--color-borde);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.servicio.marcado { border-color: var(--color-primario); background: var(--color-primario-suave); }
+.servicio input { width: 18px; height: 18px; }
+.nota { margin: 0; color: var(--color-gris); }
+.acciones { display: flex; justify-content: flex-end; }
+.registrar { padding: 12px 22px; font-size: 16px; }
