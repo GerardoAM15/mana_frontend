@@ -1,0 +1,67 @@
+<section class="page">
+  <p class="eyebrow">Inventario · compras</p>
+  <h2>Nueva compra de bebidas</h2>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="card formulario">
+    <div class="cabecera">
+      <label>
+        Proveedor
+        <select class="input" formControlName="proveedorId">
+          <option [ngValue]="null" disabled>Seleccione un proveedor</option>
+          @for (p of proveedores(); track p.id) {
+            <option [ngValue]="p.id">{{ p.razonSocial }}</option>
+          }
+        </select>
+        @if (form.controls.proveedorId.touched && form.controls.proveedorId.invalid) { <small class="error">Elija un proveedor.</small> }
+      </label>
+      <label>
+        Fecha
+        <input type="date" class="input" [max]="hoy" formControlName="fecha" />
+        @if (erroresServidor()['fecha']; as m) { <small class="error">{{ m }}</small> }
+      </label>
+    </div>
+
+    <table class="tabla" formArrayName="detalles">
+      <thead>
+        <tr><th>Bebida</th><th>Presentaciones</th><th>Unid. por presentación</th><th class="num">Unidades</th><th>Costo total</th><th></th></tr>
+      </thead>
+      <tbody>
+        @for (linea of form.controls.detalles.controls; track linea; let i = $index) {
+          <tr [formGroupName]="i">
+            <td>
+              <select class="input" formControlName="bebidaId" aria-label="Bebida">
+                <option [ngValue]="null" disabled>{{ bebidasProveedor().length ? 'Seleccione' : 'Elija primero el proveedor' }}</option>
+                @for (b of bebidasProveedor(); track b.id) {
+                  <option [ngValue]="b.id">{{ b.nombre }}</option>
+                }
+              </select>
+            </td>
+            <td><input type="number" min="1" class="input corto" formControlName="presentaciones" aria-label="Presentaciones" /></td>
+            <td><input type="number" min="1" class="input corto" formControlName="unidadesPorPresentacion" aria-label="Unidades por presentación" /></td>
+            <td class="num">{{ unidades()[i] }}</td>
+            <td><input type="number" min="0.01" step="0.01" class="input corto" formControlName="costoTotal" aria-label="Costo total" /></td>
+            <td><button type="button" class="btn" [disabled]="form.controls.detalles.length === 1" (click)="quitarLinea(i)" aria-label="Quitar línea">✕</button></td>
+          </tr>
+        }
+      </tbody>
+      <tfoot>
+        <tr><th colspan="3">Total</th><th class="num">{{ totalUnidades() }}</th><th>{{ total() | currency }}</th><th></th></tr>
+      </tfoot>
+    </table>
+    @if (form.controls.detalles.touched && form.controls.detalles.invalid) {
+      <small class="error">Cada línea necesita bebida, presentaciones y unidades (1 o más) y un costo mayor a 0.</small>
+    }
+    @if (erroresServidor()['detalles']; as m) { <small class="error">{{ m }}</small> }
+
+    <button type="button" class="btn agregar" (click)="agregarLinea()">+ Agregar bebida</button>
+
+    <div class="acciones">
+      <a routerLink="/inventario/compras" class="btn">Cancelar</a>
+      <button type="submit" class="btn btn-primary" [disabled]="guardando()">{{ guardando() ? 'Guardando...' : 'Registrar compra' }}</button>
+    </div>
+  </form>
+</section>

@@ -1,0 +1,48 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Inventario</p>
+      <h2>Compras de bebidas</h2>
+    </div>
+    <a routerLink="/inventario/compras/nueva" class="btn btn-primary">+ Nueva compra</a>
+  </header>
+  <app-inventario-tabs />
+
+  <form [formGroup]="filtros" (ngSubmit)="buscar()" class="filtros">
+    <label>Desde <input type="date" class="input" formControlName="desde" /></label>
+    <label>Hasta <input type="date" class="input" formControlName="hasta" /></label>
+    <button type="submit" class="btn" [disabled]="cargando()">Buscar</button>
+  </form>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <p>Cargando compras...</p>
+  } @else {
+    <table class="tabla">
+      <thead><tr><th>N.º</th><th>Fecha</th><th>Proveedor</th><th>Bebidas</th><th class="num">Unidades</th><th class="num">Total</th><th></th></tr></thead>
+      <tbody>
+        @for (c of compras(); track c.id) {
+          <tr>
+            <td>#{{ c.id }}</td>
+            <td>{{ c.fecha | date }}</td>
+            <td>{{ c.proveedorNombre }}</td>
+            <td>
+              @for (d of c.detalles; track d.id) { <span class="linea">{{ d.bebidaNombre }}</span> }
+            </td>
+            <td class="num">{{ unidades(c) }}</td>
+            <td class="num">{{ c.total | currency }}</td>
+            <td><a [routerLink]="['/inventario/compras', c.id]" class="btn">Ver</a></td>
+          </tr>
+        } @empty {
+          <tr><td colspan="7" class="vacio">No hay registros.</td></tr>
+        }
+      </tbody>
+      @if (compras().length) {
+        <tfoot><tr><th colspan="5">Total del periodo</th><th class="num">{{ total() | currency }}</th><th></th></tr></tfoot>
+      }
+    </table>
+  }
+</section>

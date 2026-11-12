@@ -1,0 +1,45 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Reportes</p>
+      <h2>Platos más consumidos</h2>
+      @if (rango(); as r) {
+        <p class="rango solo-impresion">Del {{ etiqueta(r.desde) }} al {{ etiqueta(r.hasta) }}{{ r.servicio ? ' · ' + catalogos.nombreServicio(r.servicio) : '' }}</p>
+      }
+    </div>
+    <a routerLink="/reportes" class="btn no-imprimir">Todos los reportes</a>
+  </header>
+
+  <app-filtros-reporte [conServicio]="true" [cargando]="cargando()" (buscar)="buscar($event)" />
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  <div class="tarjetas">
+    <div class="tarjeta"><span>Platos servidos</span><strong>{{ total() }}</strong></div>
+    <div class="tarjeta acento"><span>Platos distintos</span><strong>{{ datos().length }}</strong></div>
+    <div class="tarjeta exito"><span>Más pedido</span><strong class="texto">{{ ordenados()[0]?.platoNombre ?? '-' }}</strong></div>
+  </div>
+
+  <div class="card seccion-reporte">
+    <h3>Ranking (top 15)</h3>
+    <app-barras [series]="series" [filas]="filas()" />
+  </div>
+
+  <table class="tabla">
+    <thead><tr><th>#</th><th>Plato</th><th>Servicio</th><th class="num">Cantidad</th></tr></thead>
+    <tbody>
+      @for (p of ordenados(); track p.platoId + p.servicio; let i = $index) {
+        <tr>
+          <td>{{ i + 1 }}</td>
+          <td>{{ p.platoNombre }}</td>
+          <td>{{ catalogos.nombreServicio(p.servicio) }}</td>
+          <td class="num">{{ p.cantidad }}</td>
+        </tr>
+      } @empty {
+        <tr><td colspan="4" class="vacio">{{ cargando() ? 'Consultando...' : 'No hay registros.' }}</td></tr>
+      }
+    </tbody>
+  </table>
+</section>

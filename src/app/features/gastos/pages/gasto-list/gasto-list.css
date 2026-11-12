@@ -1,0 +1,7 @@
+.filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 18px; padding: 18px; }
+label { display: flex; flex-direction: column; gap: 5px; font-size: 14px; font-weight: 600; }
+.total { display: flex; flex-direction: column; margin-left: auto; text-align: right; }
+.total span { color: var(--color-gris); font-size: 13px; }
+.total strong { color: var(--color-primario); font-size: 24px; }
+.acciones { display: flex; gap: 8px; }
+tr.inactivo td { color: var(--color-gris); }
