@@ -1,0 +1,90 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Facturación electrónica</p>
+      <h2>Comprobantes</h2>
+    </div>
+  </header>
+
+  <form [formGroup]="filtros" (ngSubmit)="buscar(0)" class="card filtros">
+    <label>Desde <input type="date" class="input" formControlName="desde" /></label>
+    <label>Hasta <input type="date" class="input" formControlName="hasta" /></label>
+    <label>
+      Tipo
+      <select class="input" formControlName="tipo">
+        <option value="">Todos</option>
+        @for (t of tipos; track t) { <option [value]="t">{{ nombreTipo(t) }}</option> }
+      </select>
+    </label>
+    <label>
+      Estado
+      <select class="input" formControlName="estado">
+        <option value="">Todos</option>
+        @for (e of estados; track e) { <option [value]="e">{{ e }}</option> }
+      </select>
+    </label>
+    <div class="botones">
+      <button type="submit" class="btn btn-primary" [disabled]="cargando()">Buscar</button>
+      <button type="button" class="btn" (click)="limpiar()">Limpiar</button>
+    </div>
+  </form>
+
+  @if (mensaje()) {
+    <div class="alerta exito">{{ mensaje() }}</div>
+  }
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando() && !resultado()) {
+    <p>Cargando comprobantes...</p>
+  } @else if (resultado(); as r) {
+    <table class="tabla">
+      <thead>
+        <tr><th>Fecha</th><th>Número</th><th>Tipo</th><th>Cliente</th><th class="num">Total</th><th>Estado</th><th>Origen</th><th></th></tr>
+      </thead>
+      <tbody>
+        @for (c of r.contenido; track c.id) {
+          <tr>
+            <td>{{ c.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+            <td>
+              <strong [class.tachado]="c.estado === 'ANULADO'">{{ c.numeroCompleto }}</strong>
+              @if (c.ambiente === 'BETA') { <small class="beta">PRUEBA</small> }
+            </td>
+            <td>{{ nombreTipo(c.tipo) }}</td>
+            <td>
+              {{ c.receptorNombre }}
+              @if (c.receptorNumDoc) { <small>{{ c.receptorNumDoc }}</small> }
+            </td>
+            <td class="num">{{ c.total | currency }}</td>
+            <td>
+              <app-estado-badge [estado]="c.estado" />
+              @if (c.sunatMensaje && c.estado !== 'ACEPTADO') { <small [title]="c.sunatMensaje">{{ c.sunatMensaje }}</small> }
+            </td>
+            <td>
+              @if (c.ventaId) {
+                <a [routerLink]="['/ventas', c.ventaId]">Venta</a>
+              } @else if (c.contratoId) {
+                <a [routerLink]="['/contratos', c.contratoId]">Contrato</a>
+              } @else if (c.referenciaNumero) {
+                Anula a {{ c.referenciaNumero }}
+              }
+            </td>
+            <td class="acciones">
+              <button type="button" class="btn" [disabled]="ocupado() === c.id" (click)="descargar(c, 'pdf')">PDF</button>
+              @if (c.estado !== 'PENDIENTE') {
+                <button type="button" class="btn" [disabled]="ocupado() === c.id" (click)="descargar(c, 'xml')">XML</button>
+              }
+              @if (puedeReenviar(c)) {
+                <button type="button" class="btn" [disabled]="ocupado() === c.id" (click)="reenviar(c)">Reenviar</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="8" class="vacio">No hay comprobantes.</td></tr>
+        }
+      </tbody>
+    </table>
+    <app-paginador [pagina]="r" [deshabilitado]="cargando()" (cambiar)="buscar($event)" />
+  }
+</section>

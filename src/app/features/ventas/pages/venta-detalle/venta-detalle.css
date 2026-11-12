@@ -1,0 +1,10 @@
+.acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.contenido { display: grid; gap: 18px; }
+.contenido.con-cobro { grid-template-columns: minmax(300px, 400px) 1fr; align-items: start; }
+.columna { display: grid; gap: 18px; align-content: start; }
+.cobro h3 { margin: 0 0 12px; }
+.grande { width: 100%; margin-top: 14px; padding: 14px; font-size: 17px; }
+
+@media (max-width: 860px) {
+  .contenido.con-cobro { grid-template-columns: 1fr; }
+}

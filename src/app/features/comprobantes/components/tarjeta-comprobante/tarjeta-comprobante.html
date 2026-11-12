@@ -1,0 +1,136 @@
+@if (!cargando() && visible()) {
+  <section class="card tarjeta-comprobante no-imprimir">
+    <h3>Comprobante electrónico</h3>
+
+    @if (error()) {
+      <div class="alerta">{{ error() }}</div>
+    }
+
+    @if (comprobante(); as c) {
+      <div class="cabecera">
+        <div>
+          <strong class="numero" [class.tachado]="c.estado === 'ANULADO'">{{ c.numeroCompleto }}</strong>
+          <small>{{ nombreTipo(c.tipo) }} · {{ c.fecha | date: 'dd/MM/yyyy HH:mm' }}</small>
+        </div>
+        <app-estado-badge [estado]="c.estado" />
+      </div>
+
+      <dl class="datos">
+        <div><dt>Cliente</dt><dd>{{ c.receptorNombre }}{{ c.receptorNumDoc ? ' · ' + c.receptorNumDoc : '' }}</dd></div>
+        <div><dt>Total</dt><dd>{{ c.total | currency }} (IGV {{ c.igv | currency }})</dd></div>
+        @if (c.receptorEmail) {
+          <div>
+            <dt>Correo</dt>
+            <dd>
+              {{ c.receptorEmail }}
+              @if (c.correoEnviadoEn) {
+                <span class="enviado">· enviado el {{ c.correoEnviadoEn | date: 'dd/MM/yyyy HH:mm' }}</span>
+              } @else if (c.estado === 'PENDIENTE' || c.estado === 'ERROR') {
+                <span class="nota">· se enviará cuando SUNAT lo acepte</span>
+              }
+            </dd>
+          </div>
+        }
+        @if (c.referenciaNumero) {
+          <div><dt>{{ c.tipo === 'NOTA_CREDITO' ? 'Anula a' : 'Referencia' }}</dt><dd>{{ c.referenciaNumero }}</dd></div>
+        }
+      </dl>
+
+      @switch (c.estado) {
+        @case ('PENDIENTE') {
+          <p class="estado-texto">{{ ventaId() ? 'La venta' : 'El contrato' }} ya se registró; el comprobante se enviará a SUNAT en unos minutos.</p>
+        }
+        @case ('ERROR') {
+          <p class="estado-texto">No se pudo enviar todavía ({{ c.intentos }} de 5 intentos). Se reintentará solo cada 5 minutos.</p>
+        }
+        @case ('RECHAZADO') {
+          <p class="estado-texto error">SUNAT rechazó el comprobante: no tiene validez. Corrija los datos y emítalo de nuevo.</p>
+        }
+      }
+      @if (c.sunatMensaje) {
+        <p class="sunat">SUNAT{{ c.sunatCodigo ? ' (' + c.sunatCodigo + ')' : '' }}: {{ c.sunatMensaje }}</p>
+      }
+      @if (c.ambiente === 'BETA') {
+        <p class="beta">PRUEBA · SIN VALOR TRIBUTARIO</p>
+      }
+
+      @if (avisoCorreo()) {
+        <div class="alerta exito">{{ avisoCorreo() }}</div>
+      }
+
+      <div class="acciones">
+        @if (puedeEnviarCorreo()) {
+          <button type="button" class="btn" [disabled]="ocupado()" (click)="abrirCorreo()">
+            {{ c.correoEnviadoEn ? 'Reenviar por correo' : 'Enviar por correo' }}
+          </button>
+        }
+        @if (c.estado === 'PENDIENTE' || c.estado === 'ERROR') {
+          <button type="button" class="btn" [disabled]="ocupado()" (click)="cargar()">Actualizar estado</button>
+        }
+        <button type="button" class="btn" [disabled]="ocupado()" (click)="descargar('pdf')">Descargar PDF</button>
+        @if (c.estado !== 'PENDIENTE') {
+          <button type="button" class="btn" [disabled]="ocupado()" (click)="descargar('xml')">Descargar XML</button>
+        }
+        @if (puedeGestionar() && (c.estado === 'PENDIENTE' || c.estado === 'ERROR') && c.intentos < 5) {
+          <button type="button" class="btn" [disabled]="ocupado()" (click)="reenviar()">Reenviar ahora</button>
+        }
+      </div>
+    }
+
+    @if (mostrarEmitir()) {
+      @if (!comprobante()) {
+        <p class="estado-texto">{{ ventaId() ? 'Esta venta' : 'Este contrato' }} no tiene boleta ni factura.</p>
+      }
+      <button type="button" class="btn btn-primary" [disabled]="ocupado()" (click)="abrirEmision()">
+        {{ comprobante() ? 'Emitir de nuevo' : 'Emitir boleta o factura' }}
+      </button>
+    }
+  </section>
+}
+
+@if (enviandoCorreo() && comprobante(); as c) {
+  <app-confirmar-dialogo
+    [titulo]="'Enviar ' + c.numeroCompleto + ' por correo'"
+    mensaje="Se enviará el PDF y el XML firmado al cliente."
+    textoConfirmar="Enviar"
+    textoProcesando="Enviando..."
+    [procesando]="ocupado()"
+    [confirmarDeshabilitado]="!correoValido()"
+    (confirmar)="enviarCorreo()"
+    (cancelar)="enviandoCorreo.set(false)"
+  >
+    @if (errorCorreo()) {
+      <div class="alerta">{{ errorCorreo() }}</div>
+    }
+    <label class="campo-correo">
+      Correo del cliente
+      <input class="input" type="email" inputmode="email" maxlength="120" autocomplete="off" [value]="correoDestino()"
+             [disabled]="ocupado()" (input)="correoDestino.set($any($event.target).value)" />
+    </label>
+    @if (correoDestino() && !correoValido()) {
+      <small class="error">Ingrese un correo válido.</small>
+    }
+  </app-confirmar-dialogo>
+}
+
+@if (emitiendo()) {
+  <app-confirmar-dialogo
+    titulo="Emitir comprobante"
+    [mensaje]="'Total: ' + (total() | currency)"
+    textoConfirmar="Emitir"
+    textoProcesando="Emitiendo..."
+    [procesando]="ocupado()"
+    [confirmarDeshabilitado]="!solicitud()?.valido || !solicitud()?.solicitud"
+    (confirmar)="emitir()"
+    (cancelar)="emitiendo.set(false)"
+  >
+    @if (errorEmision()) {
+      <div class="alerta">{{ errorEmision() }}</div>
+    }
+    <app-datos-comprobante [total]="total()" [deshabilitado]="ocupado()" [documentoInicial]="documentoInicial()"
+                           [nombreInicial]="nombreInicial()" (cambio)="solicitud.set($event)" />
+    @if (solicitud()?.valido && !solicitud()?.solicitud) {
+      <small class="nota">Elija Boleta o Factura.</small>
+    }
+  </app-confirmar-dialogo>
+}
