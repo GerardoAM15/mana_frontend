@@ -1,0 +1,69 @@
+.exito {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 18px 22px;
+  border-radius: 10px;
+  color: var(--color-exito);
+  background: var(--color-exito-suave);
+  font-size: 18px;
+}
+
+.exito div { display: flex; flex-direction: column; gap: 4px; }
+.check { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 50%; color: #fff; background: var(--color-exito); font-size: 24px; }
+.grande { font-size: 18px; font-weight: 600; }
+.buscar label { display: block; margin-bottom: 8px; font-weight: 600; }
+.enorme { padding: 16px; font-size: 20px; }
+.nota { margin: 8px 0 0; color: var(--color-gris); }
+.centro { text-align: center; }
+.resultados { display: grid; gap: 10px; margin-top: 12px; }
+
+.resultado {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 18px;
+  border: 1px solid var(--color-borde);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 17px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.resultado:hover { border-color: var(--color-acento); background: var(--color-hover); }
+.resultado span { color: var(--color-gris); font-size: 14px; }
+.mostrador { display: grid; grid-template-columns: minmax(280px, 2fr) 3fr; align-items: start; gap: 16px; }
+.cabecera { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.cabecera h3 { margin: 0; }
+.titulo-seccion { margin: 18px 0 10px; color: var(--color-acento); font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.platos .titulo-seccion { margin-top: 0; }
+.servicios { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+.servicio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 8px;
+  border: 2px solid var(--color-borde);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.servicio .nombre { font-weight: 600; }
+.servicio .saldo { color: var(--color-primario); font-size: 30px; font-weight: 600; }
+.servicio small { color: var(--color-gris); }
+.servicio.activo { border-color: var(--color-primario); background: var(--color-primario-suave); }
+.servicio:disabled { opacity: .45; cursor: not-allowed; }
+.llevar { display: flex; align-items: center; gap: 10px; margin: 18px 0 12px; font-size: 18px; font-weight: 600; }
+.llevar input { width: 24px; height: 24px; }
+.recargo { color: var(--color-acento); }
+.metodo { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; font-weight: 600; }
+.registrar { width: 100%; padding: 18px; font-size: 20px; }
+
+@media (max-width: 900px) {
+  .mostrador { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,12 @@
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding: 18px;
+}
+
+label { display: flex; flex-direction: column; gap: 5px; font-size: 14px; font-weight: 600; }
+.botones { display: flex; gap: 8px; }
+.dni { color: var(--color-gris); }

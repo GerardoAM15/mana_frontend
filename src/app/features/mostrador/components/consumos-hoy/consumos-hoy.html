@@ -1,0 +1,61 @@
+<section class="consumos">
+  <div class="encabezado">
+    <h3>Consumos de hoy</h3>
+    <button type="button" class="btn" [disabled]="cargando()" (click)="cargar()">Actualizar</button>
+  </div>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando() && !resultado()) {
+    <p>Cargando consumos...</p>
+  } @else if (resultado(); as r) {
+    <table class="tabla">
+      <thead>
+        <tr><th>Hora</th><th>Cliente</th><th>Servicio</th><th>Platos</th><th>Para llevar</th><th>Estado</th><th></th></tr>
+      </thead>
+      <tbody>
+        @for (c of r.contenido; track c.id) {
+          <tr [class.anulado]="c.anulado">
+            <td>{{ c.registradoEn | date: 'HH:mm' }}</td>
+            <td>{{ cliente(c.contratoId) }}</td>
+            <td>{{ catalogos.nombreServicio(c.servicio) }}</td>
+            <td>
+              @for (p of c.platos; track p.platoId) {
+                <span class="plato">{{ p.cantidad }}× {{ p.platoNombre }}</span>
+              }
+            </td>
+            <td>
+              @if (c.paraLlevar) {
+                Sí{{ c.recargoLlevar ? ' · ' + (c.recargoLlevar | currency) + ' (' + catalogos.nombreMetodo(c.metodoRecargo ?? '') + ')' : '' }}
+              } @else {
+                No
+              }
+            </td>
+            <td>{{ c.anulado ? 'Anulado' : 'Registrado' }}</td>
+            <td>
+              @if (!c.anulado) {
+                <button *siPermiso="'CONSUMO_ANULAR'" type="button" class="btn btn-peligro" (click)="porAnular.set(c)">Anular</button>
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="7" class="vacio">No hay registros.</td></tr>
+        }
+      </tbody>
+    </table>
+    <app-paginador [pagina]="r" [deshabilitado]="cargando()" (cambiar)="cargar($event)" />
+  }
+</section>
+
+@if (porAnular(); as c) {
+  <app-confirmar-anulacion
+    [titulo]="'¿Anular el consumo de ' + cliente(c.contratoId) + '?'"
+    [aviso]="'Se devolverá 1 ración de ' + catalogos.nombreServicio(c.servicio) + ' al saldo' + (c.recargoLlevar ? ' y el recargo dejará de contar en la caja.' : '.')"
+    [procesando]="anulando()"
+    [error]="errorAnulacion()"
+    (confirmar)="anular($event)"
+    (cancelar)="cerrarAnulacion()"
+  />
+}

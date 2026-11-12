@@ -1,0 +1,115 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Pensionistas · {{ hoy | date: 'EEEE dd/MM/yyyy' }}</p>
+      <h2>Mostrador</h2>
+    </div>
+  </header>
+
+  @if (exito(); as e) {
+    <div class="exito" role="status">
+      <span class="check" aria-hidden="true">✓</span>
+      <div>
+        <strong>{{ catalogos.nombreServicio(e.servicio) }} registrado para {{ e.nombre }}</strong>
+        <span>
+          @if (e.saldo !== null) { Le quedan {{ e.saldo }} raciones. }
+          @if (e.paraLlevar) { Para llevar{{ e.recargo > 0 ? ' · recargo ' + (e.recargo | currency) : '' }}. }
+        </span>
+      </div>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alerta grande">{{ error() }}</div>
+  }
+
+  <!-- 1. Buscar pensionista -->
+  @if (!pensionista()) {
+    <div class="card buscar">
+      <label for="buscador">DNI o nombre del pensionista</label>
+      <input id="buscador" #buscador class="input enorme" autocomplete="off" placeholder="Escriba al menos 2 caracteres..." [formControl]="busqueda" />
+      @if (buscando()) {
+        <p class="nota">Buscando...</p>
+      } @else if (busqueda.value.trim().length >= 2 && resultados().length === 0) {
+        <p class="nota">No se encontraron pensionistas con contrato vigente.</p>
+      }
+      <div class="resultados">
+        @for (p of resultados(); track p.contratoId) {
+          <button type="button" class="resultado" (click)="elegir(p)">
+            <strong>{{ p.nombreCompleto }}</strong>
+            <span>DNI {{ p.dni }} · {{ p.numero }} · hasta {{ p.fechaFin | date }}</span>
+          </button>
+        }
+      </div>
+    </div>
+  } @else {
+    @let p = pensionista()!;
+    <div class="mostrador">
+      <!-- Pensionista y saldos -->
+      <div class="card pensionista">
+        <div class="cabecera">
+          <div>
+            <h3>{{ p.nombreCompleto }}</h3>
+            <p class="nota">DNI {{ p.dni }} · {{ p.numero }} · del {{ p.fechaInicio | date }} al {{ p.fechaFin | date }}</p>
+          </div>
+          <button type="button" class="btn" (click)="cancelar()">Otro cliente</button>
+        </div>
+        @if (p.estado !== 'ACTIVO') {
+          <div class="alerta aviso">El contrato está {{ p.estado }}: solo se registran consumos de contratos activos.</div>
+        }
+
+        <p class="titulo-seccion">Servicio</p>
+        <div class="servicios">
+          @for (s of servicios; track s) {
+            <button type="button" class="servicio" [class.activo]="servicio() === s" [disabled]="!habilitado(s)" (click)="elegirServicio(s)">
+              <span class="nombre">{{ catalogos.nombreServicio(s) }}</span>
+              <span class="saldo">{{ saldo(s) ?? '—' }}</span>
+              <small>{{ saldo(s) === null ? 'No contratado' : (saldo(s) === 0 ? 'Sin saldo' : 'raciones') }}</small>
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Platos del menú de hoy -->
+      @if (servicio(); as s) {
+        <div class="card platos">
+          <p class="titulo-seccion">Menú de hoy · {{ catalogos.nombreServicio(s) }}</p>
+          @if (!menu()) {
+            <div class="alerta aviso">No hay menú programado hoy para {{ catalogos.nombreServicio(s) }}.</div>
+          } @else if (!regla()) {
+            <div class="alerta aviso">No hay una regla de composición activa para {{ catalogos.nombreServicio(s) }}.</div>
+          } @else {
+            <app-selector-composicion [componentes]="regla()!.componentes" [platos]="menu()!.platos" [(seleccion)]="seleccion" />
+          }
+
+          <label class="llevar">
+            <input type="checkbox" [checked]="paraLlevar()" (change)="paraLlevar.set($any($event.target).checked)" />
+            Para llevar
+            @if (recargo() > 0) { <span class="recargo">+ {{ recargo() | currency }}</span> }
+          </label>
+
+          @if (cobraRecargo()) {
+            <app-aviso-caja />
+            <label class="metodo">
+              Método de pago del recargo
+              <select class="input" [value]="metodoRecargo()" (change)="metodoRecargo.set($any($event.target).value)">
+                @for (m of catalogos.metodosPago(); track m.codigo) {
+                  <option [value]="m.codigo" [selected]="m.codigo === metodoRecargo()">{{ m.nombre }}</option>
+                }
+              </select>
+            </label>
+          }
+
+          <button type="button" class="btn btn-primary registrar" [disabled]="!puedeRegistrar()" (click)="registrar()">
+            {{ guardando() ? 'Guardando...' : 'Registrar consumo' }}
+          </button>
+          @if (!completo() && regla()) {
+            <p class="nota centro">Complete la selección según la composición del menú.</p>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <app-consumos-hoy [nombres]="nombres()" (anulado)="alAnular($event)" />
+</section>

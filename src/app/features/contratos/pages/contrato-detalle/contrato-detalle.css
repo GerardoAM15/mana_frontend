@@ -1,0 +1,22 @@
+.acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.cabecera { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.cabecera h3 { margin: 0; }
+.sub { margin: 4px 0 16px; color: var(--color-gris); }
+
+.datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin: 0 0 16px;
+}
+
+.datos dt { color: var(--color-gris); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.datos dd { margin: 2px 0 0; font-weight: 600; }
+.datos a { color: var(--color-primario); }
+h4 { margin: 22px 0 10px; color: var(--color-primario); }
+.devolucion td { color: var(--color-peligro); }
+.anulado td { color: var(--color-gris); text-decoration: line-through; }
+.plato { display: block; font-size: 14px; }
+.firma { margin-top: 24px; }
+
+.comprobante-electronico { margin-top: 18px; }

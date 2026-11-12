@@ -1,0 +1,142 @@
+<section class="page">
+  <header class="page-header no-imprimir">
+    <div>
+      <p class="eyebrow">Pensiones</p>
+      <h2>Detalle del contrato</h2>
+    </div>
+    <div class="acciones">
+      <a routerLink="/contratos" class="btn">Volver</a>
+      @if (contrato()) {
+        <button type="button" class="btn" (click)="imprimir()">Imprimir comprobante</button>
+      }
+      @if (puedeRenovar()) {
+        <a [routerLink]="['/contratos', id(), 'renovar']" class="btn btn-primary">Renovar</a>
+      }
+      @if (puedeAnular()) {
+        <button type="button" class="btn btn-peligro" [disabled]="!cajaEstado.abierta()" (click)="anulando.set(true)">Anular</button>
+      }
+    </div>
+  </header>
+
+  @if (puedeAnular()) {
+    <app-aviso-caja />
+  }
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (contrato(); as c) {
+    <div class="card comprobante">
+      <div class="solo-impresion">
+        <p class="eyebrow">MANÁ · Comedor universitario</p>
+        <h2>Comprobante de contrato</h2>
+      </div>
+
+      <div class="cabecera">
+        <div>
+          <h3>{{ c.numero }}</h3>
+          <p class="sub">{{ c.planNombre }} · del {{ c.fechaInicio | date }} al {{ c.fechaFin | date }}</p>
+        </div>
+        <app-estado-badge [estado]="c.estado" />
+      </div>
+
+      <dl class="datos">
+        <div><dt>Cliente</dt><dd><a [routerLink]="['/clientes', c.clienteId]">{{ c.clienteNombre }}</a></dd></div>
+        <div><dt>DNI</dt><dd>{{ c.dni }}</dd></div>
+        <div><dt>Monto total</dt><dd>{{ c.montoTotal | currency }}</dd></div>
+        @if (c.anteriorId) {
+          <div class="no-imprimir"><dt>Renovación de</dt><dd><a [routerLink]="['/contratos', c.anteriorId]">Contrato anterior</a></dd></div>
+        }
+        @if (siguiente(); as s) {
+          <div class="no-imprimir"><dt>Renovado por</dt><dd><a [routerLink]="['/contratos', s.id]">{{ s.numero }}</a></dd></div>
+        }
+      </dl>
+
+      @if (c.estado === 'ANULADO') {
+        <div class="alerta">
+          Anulado el {{ c.anuladoEn | date: 'dd/MM/yyyy HH:mm' }}. Motivo: {{ c.motivoAnulacion }}
+        </div>
+      }
+
+      <h4>Servicios</h4>
+      <table class="tabla">
+        <thead><tr><th>Servicio</th><th class="num">Contratadas</th><th class="num">Saldo</th><th class="num">Precio pactado</th><th class="num">Subtotal</th></tr></thead>
+        <tbody>
+          @for (d of c.detalles; track d.id) {
+            <tr>
+              <td>{{ catalogos.nombreServicio(d.servicio) }}</td>
+              <td class="num">{{ d.racionesContratadas }}</td>
+              <td class="num"><strong>{{ d.saldoRaciones }}</strong></td>
+              <td class="num">{{ d.precioRacionPactado | currency }}</td>
+              <td class="num">{{ d.subtotal | currency }}</td>
+            </tr>
+          }
+        </tbody>
+        <tfoot><tr><th colspan="4">Total</th><th class="num">{{ c.montoTotal | currency }}</th></tr></tfoot>
+      </table>
+
+      <h4>Pagos</h4>
+      <table class="tabla">
+        <thead><tr><th>Fecha</th><th>Tipo</th><th>Método</th><th>Referencia</th><th class="num">Monto</th></tr></thead>
+        <tbody>
+          @for (p of c.pagos; track p.id) {
+            <tr [class.devolucion]="p.tipo === 'DEVOLUCION'">
+              <td>{{ p.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ p.tipo === 'COBRO' ? 'Cobro' : 'Devolución' }}</td>
+              <td>{{ catalogos.nombreMetodo(p.metodo) }}</td>
+              <td>{{ p.referencia || '-' }}</td>
+              <td class="num">{{ p.tipo === 'DEVOLUCION' ? '-' : '' }}{{ p.monto | currency }}</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="vacio">No hay registros.</td></tr>
+          }
+        </tbody>
+      </table>
+
+      <div class="no-imprimir">
+        <h4>Consumos</h4>
+        <table class="tabla">
+          <thead><tr><th>Fecha</th><th>Servicio</th><th>Platos</th><th>Para llevar</th><th>Estado</th></tr></thead>
+          <tbody>
+            @for (k of c.consumos; track k.id) {
+              <tr [class.anulado]="k.anulado">
+                <td>{{ k.fecha | date }}</td>
+                <td>{{ catalogos.nombreServicio(k.servicio) }}</td>
+                <td>
+                  @for (pl of k.platos; track pl.platoId) {
+                    <span class="plato">{{ pl.cantidad }}× {{ pl.platoNombre }}</span>
+                  }
+                </td>
+                <td>{{ k.paraLlevar ? 'Sí' + (k.recargoLlevar ? ' (+' + (k.recargoLlevar | currency) + ')' : '') : 'No' }}</td>
+                <td>{{ k.anulado ? 'Anulado' : 'Registrado' }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="5" class="vacio">No hay consumos.</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <p class="solo-impresion firma">Total pagado: {{ totalCobrado() | currency }} · Impreso el {{ hoy | date }}</p>
+    </div>
+
+    <div class="comprobante-electronico">
+      <app-tarjeta-comprobante [contratoId]="c.id" [total]="c.montoTotal" [puedeEmitir]="c.estado !== 'ANULADO'"
+                               [documentoInicial]="c.dni" [nombreInicial]="c.clienteNombre" [version]="versionComprobante()" />
+    </div>
+  } @else if (!error()) {
+    <p>Cargando contrato...</p>
+  }
+</section>
+
+@if (anulando() && contrato(); as c) {
+  <app-confirmar-anulacion
+    [titulo]="'¿Anular el contrato ' + c.numero + '?'"
+    [aviso]="'Se devolverán los pagos (' + (totalCobrado() | currency) + ') con los mismos métodos, registrándolos en su caja abierta.'"
+    [procesando]="procesando()"
+    [error]="errorAnulacion()"
+    (confirmar)="anular($event)"
+    (cancelar)="anulando.set(false); errorAnulacion.set(null)"
+  />
+}
