@@ -1,0 +1,16 @@
+.acciones { display: flex; gap: 8px; }
+.cabecera { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.cabecera h3 { margin: 0 0 12px; }
+
+.datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 0 0 18px;
+}
+
+.datos dt { color: var(--color-gris); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.datos dd { margin: 2px 0 0; font-weight: 600; }
+.cuadra { color: var(--color-exito); font-weight: 600; }
+.descuadre { color: var(--color-peligro); font-weight: 600; }
+.observacion { margin: 16px 0 0; }

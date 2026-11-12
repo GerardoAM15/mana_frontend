@@ -1,0 +1,73 @@
+<section class="page">
+  <header class="page-header no-imprimir">
+    <div>
+      <p class="eyebrow">Caja</p>
+      <h2>Arqueo de caja</h2>
+    </div>
+    <div class="acciones">
+      <a [routerLink]="supervisa ? '/caja/historial' : '/caja'" class="btn">Volver</a>
+      <button type="button" class="btn btn-primary" [disabled]="!resumen()" (click)="imprimir()">Imprimir</button>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="alerta">{{ error() }}</div>
+  }
+
+  @if (cargando()) {
+    <p>Cargando arqueo...</p>
+  } @else if (resumen(); as r) {
+    <div class="card">
+      <div class="cabecera">
+        <div>
+          <p class="eyebrow">MANÁ · Arqueo de caja</p>
+          <h3>Caja #{{ r.caja.id }}</h3>
+        </div>
+        <app-estado-badge [estado]="r.caja.cierre ? 'CERRADA' : 'ABIERTA'" />
+      </div>
+
+      <dl class="datos">
+        <div><dt>Usuario</dt><dd>#{{ r.caja.usuarioId }}</dd></div>
+        <div><dt>Apertura</dt><dd>{{ r.caja.apertura | date: 'dd/MM/yyyy HH:mm' }}</dd></div>
+        <div><dt>Cierre</dt><dd>{{ r.caja.cierre ? (r.caja.cierre | date: 'dd/MM/yyyy HH:mm') : 'Abierta' }}</dd></div>
+        <div><dt>Monto inicial</dt><dd>{{ r.caja.montoInicial | currency }}</dd></div>
+        <div><dt>Ventas</dt><dd>{{ r.ventas }}</dd></div>
+        <div><dt>Consumos</dt><dd>{{ r.consumos }}</dd></div>
+        <div><dt>Contratos</dt><dd>{{ r.contratos }}</dd></div>
+      </dl>
+
+      <table class="tabla">
+        <thead>
+          <tr><th>Método</th><th class="num">Movimientos</th><th class="num">Esperado</th><th class="num">Contado</th><th class="num">Diferencia</th></tr>
+        </thead>
+        <tbody>
+          @for (m of r.metodos; track m.metodo) {
+            <tr>
+              <td>{{ catalogos.nombreMetodo(m.metodo) }}</td>
+              <td class="num">{{ m.movimientos }}</td>
+              <td class="num">{{ m.montoEsperado | currency }}</td>
+              <td class="num">{{ m.montoContado !== null ? (m.montoContado | currency) : '-' }}</td>
+              <td class="num" [class.cuadra]="m.diferencia === 0" [class.descuadre]="!!m.diferencia">
+                {{ m.diferencia !== null ? (m.diferencia | currency) : '-' }}
+              </td>
+            </tr>
+          } @empty {
+            <tr><td colspan="5" class="vacio">Sin movimientos.</td></tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="2">Total</th>
+            <th class="num">{{ (r.caja.montoEsperado ?? r.montoEsperado) | currency }}</th>
+            <th class="num">{{ r.caja.montoContado !== null ? (r.caja.montoContado | currency) : '-' }}</th>
+            <th class="num">{{ r.caja.diferencia !== null ? (r.caja.diferencia | currency) : '-' }}</th>
+          </tr>
+        </tfoot>
+      </table>
+
+      @if (r.caja.observacion) {
+        <p class="observacion"><strong>Observación:</strong> {{ r.caja.observacion }}</p>
+      }
+    </div>
+  }
+</section>

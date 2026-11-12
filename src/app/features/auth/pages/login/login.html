@@ -1,0 +1,38 @@
+<main class="fondo">
+  <form class="card acceso" [formGroup]="form" (ngSubmit)="ingresar()">
+    <p class="eyebrow">MANÁ · Comedor universitario</p>
+    <h2>Iniciar sesión</h2>
+    <p class="sub">Pensiones, punto de venta y caja</p>
+
+    @if (error()) {
+      <div class="alerta">{{ error() }}</div>
+    }
+
+    <label for="correo">Correo</label>
+    <input id="correo" type="email" class="input" formControlName="correo" autocomplete="username" />
+    @if (form.controls.correo.touched && form.controls.correo.invalid) {
+      <small class="error">Ingrese un correo válido.</small>
+    }
+
+    <label for="clave">Contraseña</label>
+    <div class="clave">
+      <input id="clave" [type]="verClave() ? 'text' : 'password'" class="input" formControlName="clave" autocomplete="current-password" />
+      <button type="button" class="ojo" (click)="verClave.set(!verClave())"
+              [attr.aria-label]="verClave() ? 'Ocultar contraseña' : 'Mostrar contraseña'" [attr.aria-pressed]="verClave()">
+        @if (verClave()) {
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /><path d="M3 3l18 18" /></svg>
+        } @else {
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
+        }
+      </button>
+    </div>
+    @if (form.controls.clave.touched && form.controls.clave.invalid) {
+      <small class="error">Ingrese la contraseña.</small>
+    }
+
+    <button type="submit" class="btn btn-primary ancho" [disabled]="enviando()">
+      {{ enviando() ? 'Ingresando...' : 'Ingresar' }}
+    </button>
+    <a routerLink="/recuperar" class="enlace">¿Olvidó su contraseña?</a>
+  </form>
+</main>

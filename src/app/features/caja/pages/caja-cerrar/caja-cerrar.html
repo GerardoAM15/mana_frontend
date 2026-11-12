@@ -1,0 +1,102 @@
+<section class="page">
+  <header class="page-header">
+    <div>
+      <p class="eyebrow">Caja</p>
+      <h2>Cerrar caja</h2>
+    </div>
+    <a routerLink="/caja" class="btn">Volver a mi caja</a>
+  </header>
+
+  @if (error()) {
+    <div class="alerta">
+      {{ error() }}
+      @if (conflicto() && resumen(); as r) {
+        <a class="enlace" routerLink="/ventas" [queryParams]="{ estado: 'PENDIENTE', cajaId: r.caja.id }">Ver ventas pendientes</a>
+      }
+    </div>
+  }
+
+  @if (cargando()) {
+    <p>Cargando arqueo...</p>
+  } @else if (sinCaja()) {
+    <div class="alerta aviso">No tiene una caja abierta. <a routerLink="/caja">Abrir caja</a></div>
+  } @else if (resumen(); as r) {
+    <form [formGroup]="form" (ngSubmit)="pedirConfirmacion()" class="card">
+      <p class="eyebrow">Caja #{{ r.caja.id }} · arqueo por método de pago</p>
+      <table class="tabla">
+        <thead>
+          <tr><th>Método</th><th class="num">Esperado</th><th class="num">Contado</th><th class="num">Diferencia</th></tr>
+        </thead>
+        <tbody formArrayName="conteos">
+          @for (fila of filas(); track fila.metodo; let i = $index) {
+            <tr>
+              <td>{{ catalogos.nombreMetodo(fila.metodo) }}</td>
+              <td class="num">{{ fila.esperado | currency }}</td>
+              <td class="num">
+                <input type="number" min="0" step="0.01" class="input contado" [formControlName]="i"
+                       [attr.aria-label]="'Monto contado ' + catalogos.nombreMetodo(fila.metodo)" />
+                @if (form.controls.conteos.at(i).touched && form.controls.conteos.at(i).invalid) {
+                  <small class="error">Ingrese un monto ≥ 0.</small>
+                }
+              </td>
+              <td class="num diferencia" [class.cuadra]="diferencias()[i] === 0" [class.descuadre]="diferencias()[i] !== 0">
+                {{ diferencias()[i] | currency }}
+              </td>
+            </tr>
+          }
+        </tbody>
+        <tfoot>
+          <tr>
+            <th>Total</th>
+            <th class="num">{{ totalEsperado() | currency }}</th>
+            <th class="num">{{ totalContado() | currency }}</th>
+            <th class="num diferencia" [class.cuadra]="totalDiferencia() === 0" [class.descuadre]="totalDiferencia() !== 0">
+              {{ totalDiferencia() | currency }}
+            </th>
+          </tr>
+        </tfoot>
+      </table>
+      @if (erroresServidor()['conteos']; as mensaje) {
+        <small class="error">{{ mensaje }}</small>
+      }
+
+      <label class="observacion">
+        Observación (opcional)
+        <textarea class="input" rows="3" maxlength="250" formControlName="observacion"></textarea>
+      </label>
+      @if (form.controls.observacion.invalid) {
+        <small class="error">Máximo 250 caracteres.</small>
+      }
+      @if (erroresServidor()['observacion']; as mensaje) {
+        <small class="error">{{ mensaje }}</small>
+      }
+
+      <div class="acciones">
+        <a routerLink="/caja" class="btn">Cancelar</a>
+        <button type="submit" class="btn btn-primary" [disabled]="guardando()">
+          {{ guardando() ? 'Cerrando...' : 'Cerrar caja' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>
+
+@if (confirmando()) {
+  <app-confirmar-dialogo
+    titulo="¿Cerrar la caja?"
+    mensaje="Después del cierre ya no podrá cobrar ni anular operaciones de esta caja."
+    textoConfirmar="Sí, cerrar caja"
+    textoProcesando="Cerrando..."
+    [procesando]="guardando()"
+    (confirmar)="cerrar()"
+    (cancelar)="cancelar()"
+  >
+    <div class="resumen-cierre">
+      <span>Esperado <strong>{{ totalEsperado() | currency }}</strong></span>
+      <span>Contado <strong>{{ totalContado() | currency }}</strong></span>
+      <span>Diferencia
+        <strong [class.cuadra]="totalDiferencia() === 0" [class.descuadre]="totalDiferencia() !== 0">{{ totalDiferencia() | currency }}</strong>
+      </span>
+    </div>
+  </app-confirmar-dialogo>
+}

@@ -1,0 +1,6 @@
+@if (cajaEstado.cargada() && !cajaEstado.abierta()) {
+  <div class="aviso-caja no-imprimir" role="status">
+    <span><strong>Abra su caja para continuar.</strong> Esta operación registra cobros o devoluciones en su caja.</span>
+    <a routerLink="/caja" class="btn btn-acento">Ir a Caja</a>
+  </div>
+}
