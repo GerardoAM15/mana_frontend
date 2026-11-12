@@ -1,6 +1,6 @@
 import { calcularTotales, LineaPedido } from './totales';
 
-// Precios de referencia (docs/prompt-backend-mana.md): menú A 11.00 (+2.00 llevar),
+// Precios de referencia (reglas de negocio de MANÁ): menú A 11.00 (+2.00 llevar),
 // entrada suelta 4.00 (+1.00 llevar), desayuno 4.50 (+0 llevar).
 const linea = (tipo: LineaPedido['tipo'], cantidad: number, precioUnitario: number, recargoUnitario: number) =>
   ({ tipo, cantidad, precioUnitario, recargoUnitario });
